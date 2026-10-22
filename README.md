@@ -1,4 +1,4 @@
-# Job Concierge: a job search run like a product
+# Job Search Concierge: a job search run like a product
 
 A Claude skill that runs a job search in seven stages and keeps everything in **your own Google Drive**.
 
