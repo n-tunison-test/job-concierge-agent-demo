@@ -432,7 +432,7 @@ VIEWS.interview=function(){
   var seg=h("div",{class:"seg",role:"group","aria-label":"Prep mode"},[["points","Speaking points"],["practice","Practice"],["log","Notes log"]].map(function(t){var b=h("button",{type:"button","aria-pressed":t[0]===tab?"true":"false",onclick:function(){tab=t[0];Array.prototype.forEach.call(seg.children,function(x,i){x.setAttribute("aria-pressed",["points","practice","log"][i]===tab?"true":"false")});paint()}},t[1]);return b}));
   paint();
   return h("div",{class:"wrap"},
-   head("5","Interview prep and speaking points","One prep doc per company. Practice rounds with feedback, and a one-screen set of speaking points for interview day.","interview-prep"),
+   head("5","Interview prep and speaking points","Provide names of interviewers or any resources/links that the hiring team has shared so we can best prepare for this specific audience. One prep doc per company. Practice rounds with feedback, and a one-screen set of speaking points for interview day.","interview-prep"),
    h("div",null,h("div",{class:"lab",style:"margin-bottom:6px"},"Acme Care Navigation, Group PM"),seg),body,
    behind("interview-prep","Job Search / Interview Prep (one doc per company), linked in the Tracker","Your Profile, the posting, your notes"));
 };
