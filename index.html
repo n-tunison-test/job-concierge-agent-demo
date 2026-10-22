@@ -1,0 +1,594 @@
+<title>Job Search Coach</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a fixed left rail (guide, dashboard, six stages) and one working pane. Slate rail, cool paper pane, one blue accent. */
+:root{
+  --bg:#f3f5f8; --pane:#ffffff; --pane2:#eef1f5; --ink:#142030; --ink2:#4b5b6e; --ink3:#76859a; --line:#dde3eb;
+  --rail:#122033; --rail-ink:#e8eef6; --rail-ink2:#9fb0c5; --rail-line:#223650; --rail-hover:#1b2f48; --rail-on:#2a78d6;
+  --accent:#2a78d6; --accent-ink:#ffffff; --accent-soft:#e3eefb; --accent-text:#1a5fb4;
+  --s1:#2a78d6; --s1-soft:#bcd5f3; --flow:#95b9ea; --flow2:#d2e2f6; --gray-flow:#c9cdd3; --gray-node:#868d97;
+  --ok:#17693b; --ok-bg:#dff3e6; --warn:#8a5a00; --warn-bg:#fff0cf; --crit:#a8281f; --crit-bg:#fde5e2;
+  --shadow:0 1px 2px rgba(20,32,48,.06),0 6px 18px rgba(20,32,48,.05);
+  --font:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Plus Jakarta Sans","Instrument Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0b1420; --pane:#121e2d; --pane2:#192839; --ink:#e9eff7; --ink2:#a9b8cb; --ink3:#7c8ca1; --line:#243649;
+  --rail:#0a111b; --rail-line:#1b2b3f; --rail-hover:#142234;
+  --accent:#5a9ce8; --accent-ink:#071a30; --accent-soft:#18304c; --accent-text:#8dbbf2;
+  --s1:#3987e5; --s1-soft:#1f4a7e; --flow:#2f5f9c; --flow2:#1d3a5c; --gray-flow:#34404f; --gray-node:#6c7684;
+  --ok:#6fd39a; --ok-bg:#12372a; --warn:#f0b24a; --warn-bg:#3a2b0d; --crit:#ff8a80; --crit-bg:#3c1a18;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1420; --pane:#121e2d; --pane2:#192839; --ink:#e9eff7; --ink2:#a9b8cb; --ink3:#7c8ca1; --line:#243649;
+  --rail:#0a111b; --rail-line:#1b2b3f; --rail-hover:#142234;
+  --accent:#5a9ce8; --accent-ink:#071a30; --accent-soft:#18304c; --accent-text:#8dbbf2;
+  --s1:#3987e5; --s1-soft:#1f4a7e; --flow:#2f5f9c; --flow2:#1d3a5c; --gray-flow:#34404f; --gray-node:#6c7684;
+  --ok:#6fd39a; --ok-bg:#12372a; --warn:#f0b24a; --warn-bg:#3a2b0d; --crit:#ff8a80; --crit-bg:#3c1a18;
+  --shadow:0 1px 2px rgba(0,0,0,.4); color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--font)}
+h1,h2,h3{font-family:var(--display);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:28px;line-height:1.15;font-weight:800}
+h2{font-size:18px;font-weight:700}
+h3{font-size:14px;font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--accent-text)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{display:grid;grid-template-columns:272px minmax(0,1fr);min-height:100vh}
+/* rail */
+.rail{background:var(--rail);color:var(--rail-ink);position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;padding-block:20px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px}
+.brand{display:flex;gap:10px;align-items:center;font:800 17px var(--display);padding:2px 4px 16px}
+.brand i{width:30px;height:30px;border-radius:9px;background:var(--rail-on);display:grid;place-items:center;flex:none}
+.group{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rail-ink2);padding:14px 10px 6px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{display:flex;align-items:center;gap:10px;background:none;border:0;color:var(--rail-ink);text-align:left;padding:9px 10px;border-radius:9px;width:100%}
+.nav button:hover{background:var(--rail-hover)}
+.nav button[aria-current="page"]{background:var(--rail-on);color:#fff}
+.nav .n{width:22px;height:22px;border-radius:50%;border:1px solid var(--rail-line);display:grid;place-items:center;font:500 12px var(--mono);flex:none;color:var(--rail-ink2)}
+.nav button[aria-current="page"] .n{border-color:rgba(255,255,255,.6);color:#fff}
+.nav .t{flex:1;min-width:0}
+.nav .tag{font-size:11px;background:var(--rail-line);color:var(--rail-ink2);padding:1px 7px;border-radius:999px}
+.nav button[aria-current="page"] .tag{background:rgba(255,255,255,.2);color:#fff}
+.who{margin-top:auto;padding-top:18px;border-top:1px solid var(--rail-line);display:flex;gap:10px;align-items:center;font-size:13px}
+.who b{width:34px;height:34px;border-radius:50%;background:var(--rail-hover);display:grid;place-items:center;font:700 13px var(--display);flex:none}
+.who small{display:block;color:var(--rail-ink2);font-size:12px}
+.themebtn{margin-left:auto;background:none;border:1px solid var(--rail-line);color:var(--rail-ink2);border-radius:8px;padding:4px 9px;font-size:12px}
+/* pane */
+.pane{min-width:0;padding-block:28px 64px;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.demo{background:var(--warn-bg);color:var(--warn);font-size:13px;padding:7px 12px;border-radius:9px}
+.head{display:flex;flex-direction:column;gap:8px}
+.head .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.sub{color:var(--ink2);max-width:66ch}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:2px 10px;border-radius:999px;background:var(--pane2);color:var(--ink2)}
+.pill.acc{background:var(--accent-soft);color:var(--accent-text)}
+.pill.ok{background:var(--ok-bg);color:var(--ok)} .pill.warn{background:var(--warn-bg);color:var(--warn)} .pill.crit{background:var(--crit-bg);color:var(--crit)}
+.mono{font-family:var(--mono);font-size:12.5px}
+.card{background:var(--pane);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.card.flat{box-shadow:none} .card.raised{box-shadow:var(--shadow)}
+.cols{display:grid;gap:16px;grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:start}
+.g2{display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{display:grid;gap:16px;grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{display:grid;gap:12px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.stack{display:flex;flex-direction:column;gap:12px}
+.lab{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:600}
+label.f{display:block;font-size:13px;color:var(--ink2);font-weight:500;margin-bottom:4px}
+input,select,textarea{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--pane);color:var(--ink)}
+textarea{min-height:110px;resize:vertical}
+a.btn{display:inline-block;text-decoration:none;color:inherit}
+.btn{border:1px solid var(--line);background:var(--pane);border-radius:9px;padding:8px 14px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.sm{padding:4px 10px;font-size:13px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--pane)}
+.seg button{border:0;background:none;padding:7px 13px;font-size:13.5px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent-text);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--pane2);border-radius:7px;padding:3px 9px;font-size:13px}
+.chip.no{background:var(--crit-bg);color:var(--crit)}
+.kv{display:grid;grid-template-columns:140px minmax(0,1fr);gap:8px 14px;font-size:14px}
+.kv dt{color:var(--ink3)} .kv dd{margin:0}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink3);font-weight:600;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+tr.click{cursor:pointer} tr.click:hover td,tr.sel td{background:var(--pane2)}
+.steps{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.steps li{display:flex;gap:10px;align-items:center;color:var(--ink3);font-size:14px}
+.steps li i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-style:normal;font-size:11px;flex:none}
+.steps li.done{color:var(--ink)} .steps li.done i{background:var(--ok);border-color:var(--ok);color:#fff}
+.steps li.run i{border-color:var(--accent)}
+.note{border-left:3px solid var(--line);padding:2px 12px;color:var(--ink2);font-size:14px}
+.msg{background:var(--pane2);border-radius:10px;padding:12px 14px;font-size:14px;white-space:pre-wrap}
+.say{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:14px}
+.how{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap}
+.how>div{flex:1 1 150px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--pane)}
+.how>span{align-self:center;color:var(--ink3)}
+.behind{background:var(--pane2);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--ink2);display:flex;gap:16px;flex-wrap:wrap}
+.behind b{color:var(--ink)}
+.kpi{padding:14px 16px}
+.kpi .v{font:800 28px var(--display);font-variant-numeric:tabular-nums;line-height:1.1;margin-top:4px}
+.kpi .s{font-size:13px;color:var(--ink2);margin-top:2px}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto}
+.tip{position:absolute;pointer-events:none;background:var(--pane);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:8px;padding:6px 10px;font-size:13px;display:none;z-index:5;white-space:nowrap}
+.bars .r{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr) 92px;gap:12px;align-items:center;padding:6px 0;font-size:14px}
+.bars .track{display:block;height:16px;background:var(--flow2);border-radius:0 4px 4px 0;position:relative}
+.bars .fill{display:block;position:absolute;left:0;top:0;bottom:0;background:var(--s1);border-radius:0 4px 4px 0}
+.bars .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink2)}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--ink2);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+details summary{cursor:pointer;color:var(--ink2);font-size:13.5px;margin-top:10px}
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:0}
+.check input{width:auto;margin-top:4px}
+.empty{padding:36px 12px;text-align:center;color:var(--ink2)}
+@media (max-width:980px){.cols{grid-template-columns:minmax(0,1fr)}.g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .rail{position:static;height:auto;padding-block:12px;padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .rail .group,.rail .who{display:none}
+  .nav{flex-direction:row;overflow-x:auto;gap:4px;padding-bottom:4px}
+  .nav button{width:auto;white-space:nowrap;padding:8px 12px}
+  .nav .tag{display:none}
+  .brand{padding-bottom:10px}
+  .pane{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+@media (max-width:560px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}.kv{grid-template-columns:1fr}.bars .r{grid-template-columns:minmax(0,1fr) 80px}.bars .r .track{grid-column:1/-1;order:3}h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app">
+  <aside class="rail" aria-label="Job Search Coach">
+    <div class="brand"><i><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M2 10h3.5L7 5l3 8 1.5-3H16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>Job Search Coach</div>
+    <div class="group">Start here</div>
+    <nav class="nav" id="nav0"></nav>
+    <div class="group">The seven stages</div>
+    <nav class="nav" id="nav1"></nav>
+    <div class="who"><b>JR</b><div>Jordan Rivera<small>Sample account</small></div><button class="themebtn" id="themebtn" type="button">Theme</button></div>
+  </aside>
+  <main class="pane"><div class="wrap" id="view"></div></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var $=function(id){return document.getElementById(id)};
+function h(tag,attrs){var e=document.createElement(tag),i=2,k;
+  if(attrs)for(k in attrs){var v=attrs[k];
+    if(k==="class")e.className=v;else if(k.slice(0,2)==="on")e.addEventListener(k.slice(2),v);
+    else if(v===true)e.setAttribute(k,"");else if(v!==false&&v!=null)e.setAttribute(k,v);}
+  for(;i<arguments.length;i++)add(e,arguments[i]);return e}
+function add(e,c){if(c==null||c===false)return;if(Array.isArray(c))c.forEach(function(x){add(e,x)});else e.appendChild(typeof c==="object"?c:document.createTextNode(String(c)))}
+var NS="http://www.w3.org/2000/svg";
+function se(t,a,x){var e=document.createElementNS(NS,t),k;for(k in a)e.setAttribute(k,a[k]);if(x!=null)e.textContent=x;return e}
+function money(n){return "$"+Math.round(n).toLocaleString("en-US")}
+function k$(n){return "$"+(Math.round(n/100)/10)+"K"}
+function fdate(d){return d.toLocaleDateString("en-US",{month:"short",day:"numeric"})}
+function fdatey(d){return d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+var DAY=86400000, TODAY=new Date(2026,9,21);
+function copyBtn(getText){var b=h("button",{class:"btn sm",type:"button"},"Copy");
+  b.addEventListener("click",function(){var t=getText();
+    function ok(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy"},1400)}
+    try{navigator.clipboard.writeText(t).then(ok,function(){b.textContent="Select the text and copy"})}catch(e){b.textContent="Select the text and copy"}});return b}
+
+/* ---------- sample data (all fictional) ---------- */
+function rng(s){return function(){s=(s*1664525+1013904223)%4294967296;return s/4294967296}}
+var APPS=(function(){var R=rng(11),out=[],start=new Date(2026,7,24),i,N=64,srcs=["LinkedIn","Company site","Recruiter","Greenhouse"];
+  for(i=0;i<N;i++){
+    var off=Math.min(58,Math.floor(i*58/(N-1)+R()*1.2)),d=new Date(start.getTime()+off*DAY);
+    var warm=R()<0.22,ver=i<26?"Baseline v1":(i<44?"Baseline v2":"Tailored");
+    var p=(warm?0.55:0.07)+(ver==="Tailored"?0.05:0),stage=1;
+    if(R()<p){stage=2;if(R()<0.6){stage=3;if(R()<0.5){stage=4;if(R()<0.35)stage=5}}}
+    var age=(TODAY-d)/DAY,outc;
+    if(stage===5)outc="Active";
+    else if(age<12)outc="Active";
+    else if(stage>=3&&R()<0.5)outc="Active";
+    else outc=R()<0.7?"Rejected":(R()<0.5?"Withdrawn":"Active");
+    out.push({d:d,src:warm?"Referral":srcs[Math.floor(R()*srcs.length)],warm:warm,ver:ver,stage:stage,out:outc});}
+  return out})();
+
+var SCOUT=[
+ {co:"Acme Care Navigation",role:"Group Product Manager, Access and Scheduling",where:"Remote (US)",posted:new Date(2026,9,21),comp:225000,compTxt:"$200K to $225K base + equity",fit:"Apply",why:"Your self-scheduling launch cut call volume 38%, you manage PMs, and it is health tech with patient scheduling at the center.",id:"acme"},
+ {co:"Lumen Health Network",role:"Group Product Manager, Patient Experience",where:"Remote (US)",posted:new Date(2026,9,20),comp:0,compTxt:"Comp not listed",fit:"Apply",why:"Patient-facing product at scale matches your 180K to 640K member growth. Compensation is not listed.",id:"lumen"},
+ {co:"Meridian Pay",role:"Director of Product, Consumer Payments",where:"Hybrid, Austin",posted:new Date(2026,9,20),comp:245000,compTxt:"$215K to $245K base",fit:"Stretch",why:"Strong on scope, level and Austin hybrid. Gap: no payments experience, and it is your second-ranked domain.",id:"meridian"},
+ {co:"Brightfield Labs",role:"Principal Product Manager, Experimentation Platform",where:"Remote (US)",posted:new Date(2026,9,19),comp:240000,compTxt:"$210K to $240K base",fit:"Apply",why:"60+ onboarding experiments and your conference talk on experimentation. Principal is one of your accepted levels.",id:"bright"},
+ {co:"Kestrel Scheduling",role:"Director of Product",where:"Remote (US)",posted:new Date(2026,9,17),comp:260000,compTxt:"$230K to $260K base",fit:"Stretch",why:"Scheduling domain and comp fit. The team is about 40 people, which is under your 50-person deal-breaker.",id:"kestrel"}
+];
+var UNVER=[{co:"Orchid Care",role:"Group Product Manager",note:"No posting date visible; may be an old listing."}];
+
+/* ---------- views ---------- */
+var VIEWS={}, NAV0=[["intro","Intro and setup"],["dashboard","Dashboard"]],
+ NAV1=[["profile","What you're looking for","1",""],["scout","How to find it","2","agent"],["tailor","How and when to customize","3",""],["warm","Warm contacts","4",""],["interview","Interview prep","5",""],["negotiate","Negotiation","6",""],["market","Market check","7",""]];
+var cur="intro";
+function go(v){cur=v;try{history.replaceState(null,"","#"+v)}catch(e){}render();window.scrollTo(0,0);var m=document.querySelector(".pane");if(m&&m.scrollIntoView&&window.innerWidth<=860){}}
+function render(){
+  function mk(list,box,numbered){box.textContent="";list.forEach(function(n){
+    var b=h("button",{type:"button",onclick:function(){go(n[0])}},numbered?h("span",{class:"n"},n[2]):null,h("span",{class:"t"},n[1]),n[3]?h("span",{class:"tag"},n[3]):null);
+    if(n[0]===cur)b.setAttribute("aria-current","page");box.appendChild(b)})}
+  mk(NAV0,$("nav0"),false);mk(NAV1,$("nav1"),true);
+  var v=$("view");v.textContent="";v.appendChild(h("div",{class:"demo"},"Demo with sample data. Jordan Rivera and every company shown are fictional. In the full version, Claude does the work and saves it to your own Google Drive."));
+  v.appendChild((VIEWS[cur]||VIEWS.intro)());
+}
+function head(stage,title,sub,skill){
+  return h("div",{class:"head"},h("div",{class:"row"},stage?h("span",{class:"pill acc"},"Stage "+stage+" of 7"):null,skill?h("span",{class:"pill mono"},skill):null),h("h1",null,title),h("p",{class:"sub"},sub))}
+function behind(skill,saves,reads){
+  return h("div",{class:"behind"},h("span",null,h("b",null,"Skill "),skill),h("span",null,h("b",null,"Reads "),reads),h("span",null,h("b",null,"Saves to "),saves))}
+/* simulated run: reveals output after steps */
+function runner(steps,out,label){
+  var list=h("ul",{class:"steps"}),btn=h("button",{class:"btn pri",type:"button"},label||"Run with sample data"),box=h("div",{class:"stack"});
+  out.hidden=true;
+  btn.addEventListener("click",function(){
+    btn.disabled=true;list.textContent="";out.hidden=true;
+    var items=steps.map(function(s){var li=h("li",{class:"run"},h("i",null,""),s);list.appendChild(li);return li}),i=0;
+    var fast=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+    (function next(){if(i>=items.length){out.hidden=false;btn.disabled=false;btn.textContent="Run again";return}
+      var li=items[i++];li.className="done";li.firstChild.textContent="✓";setTimeout(next,fast?0:420)})();
+  });
+  box.appendChild(btn);box.appendChild(list);return box}
+
+/* ===== Intro ===== */
+VIEWS.intro=function(){
+  var stages=[["profile","1","What you're looking for","Tell Claude what you want and what matters. It builds your verified Profile and positions your expertise and best accomplishments."],
+   ["scout","2","How to find it","A twice-daily digest built around your priorities: newest posting first, then fit, then compensation."],
+   ["tailor","3","How and when to customize","A fit call decides the effort: full tailor, light tailor or your baseline resume."],
+   ["warm","4","Warm contacts","Who you know at each company, ranked, with a short honest note to send."],
+   ["interview","5","Interview prep","Prep docs, practice rounds and one-screen speaking points for interview day."],
+   ["negotiate","6","Negotiation","What an offer is worth, your target and walk-away, and a drafted reply."],
+   ["market","7","Market check","How your funnel compares with the current market, where it stalls, and where to focus."]];
+  var setup=[["Give Claude access to Google Drive and Docs","So it can create your private Job Search folder."],["Give Claude access to Google Sheets","So it can create and update your tracker."],["Allow Gmail drafts to yourself","Optional. Claude only creates drafts addressed to you. It never reads your inbox and never sends."],["Share your resume and portfolio","The more specific detail you add, the better the digest and the tailored resumes."],["Set your digest schedule","Default is 8:00 and 14:00 in your time zone."]];
+  var done={};try{done=JSON.parse(localStorage.getItem("jsc-setup")||"{}")||{}}catch(e){}
+  var counter=h("span",{class:"pill acc"});
+  function upd(){var n=Object.keys(done).filter(function(k){return done[k]}).length;counter.textContent=n+" of "+setup.length+" done"}
+  var rows=setup.map(function(s,i){var cb=h("input",{type:"checkbox",id:"su"+i,"aria-label":s[0]});cb.checked=!!done[i];
+    cb.addEventListener("change",function(){done[i]=cb.checked;try{localStorage.setItem("jsc-setup",JSON.stringify(done))}catch(e){}upd()});
+    return h("div",{class:"check"},cb,h("div",null,h("label",{for:"su"+i,style:"font-weight:600;cursor:pointer"},s[0]),h("div",{class:"sub",style:"font-size:14px"},s[1])))});
+  upd();
+  return h("div",{class:"wrap",style:"gap:20px"},
+   h("div",{class:"head"},h("h1",null,"A job search run like a product"),h("p",{class:"sub"},"Seven stages, one private workspace. Claude builds your record, finds roles that fit what matters to you, decides where tailoring is worth the effort, helps you find a warm path, prepares you for interviews and helps you negotiate, and checks how your search compares with the current market. A dashboard shows what is working. You approve everything before it goes anywhere.")),
+   h("div",{class:"card"},h("h2",{style:"margin-bottom:12px"},"How it works"),
+    h("div",{class:"how"},h("div",null,h("div",{class:"lab"},"You"),h("div",null,"Answer questions, review drafts, make every send and apply decision.")),h("span",null,"→"),
+     h("div",null,h("div",{class:"lab"},"Claude + skills"),h("div",null,"Runs the seven stages and the twice-daily agent.")),h("span",null,"→"),
+     h("div",null,h("div",{class:"lab"},"Your Google Drive"),h("div",null,"Profile, tracker, digests, resumes, prep docs. Yours alone.")),h("span",null,"→"),
+     h("div",null,h("div",{class:"lab"},"Dashboard"),h("div",null,"Counts only. No company or role names.")))),
+   h("div",{class:"cols"},
+    h("div",{class:"card"},h("div",{style:"display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px"},h("h2",null,"Set up in about 30 minutes"),counter),h("div",null,rows),
+     h("p",{class:"sub",style:"font-size:13.5px;margin-top:10px"},"In this demo the checklist is only a preview. In the full version Claude checks each connection for you.")),
+    h("div",{class:"card"},h("h2",{style:"margin-bottom:12px"},"What gets created in your Drive"),
+     h("div",{class:"stack mono",style:"font-size:13px"},h("div",null,"Job Search/"),h("div",{style:"padding-left:16px"},"Profile (doc)"),h("div",{style:"padding-left:16px"},"Tracker (sheet)"),h("div",{style:"padding-left:16px"},"Daily Digest/"),h("div",{style:"padding-left:16px"},"Tailored Resumes/"),h("div",{style:"padding-left:16px"},"Interview Prep/"),h("div",{style:"padding-left:16px"},"Dashboard/")),
+     h("div",{class:"note",style:"margin-top:14px"},"Nothing is shared. Claude never applies, sends or contacts anyone for you."))),
+   h("div",{class:"card"},h("h2",{style:"margin-bottom:6px"},"The seven stages"),h("p",{class:"sub",style:"margin-bottom:12px"},"Stages 2 to 4 repeat for every role. Stages 5 and 6 begin when a role moves forward."),
+    h("div",{class:"g3"},stages.map(function(s){return h("button",{class:"card flat",type:"button",style:"text-align:left;cursor:pointer",onclick:function(){go(s[0])}},h("span",{class:"pill acc"},s[1]),h("h3",{style:"margin:8px 0 4px"},s[2]),h("p",{class:"sub",style:"font-size:13.5px"},s[3]))}))),
+   h("div",{class:"card",id:"download"},h("h2",{style:"margin-bottom:6px"},"Get the skill"),h("p",{class:"sub",style:"margin-bottom:12px"},"This site is a demo with sample data. The real thing is one Claude skill you install in your own account, so your data stays in your own Google Drive."),
+    h("div",{style:"display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px"},h("a",{class:"btn pri",href:"job-search-coach.zip",download:"job-search-coach.zip"},"Download job-search-coach.zip"),h("a",{class:"btn",href:"https://github.com/n-tunison-test/job-concierge-agent-demo",target:"_blank",rel:"noopener"},"View on GitHub")),
+    h("ol",{style:"margin:0;padding-left:20px;display:grid;gap:6px"},h("li",null,"Download the ZIP. Do not unzip it."),h("li",null,"In Claude, open Customize, then Skills, and upload the ZIP."),h("li",null,"Turn on Google Drive, Docs, Sheets and (optionally) Gmail in the tools menu of a new chat."),h("li",null,"Say \"set up my job search\". Setup takes about 30 minutes."),h("li",null,"Every 4 to 6 weeks, say \"run a market check\".")),
+    h("p",{class:"sub",style:"font-size:13px;margin-top:10px"},"Uploading skills works on personal plans. Team and Enterprise plans can also share it with colleagues.")),
+   h("div",{class:"g2"},
+    h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Get better results"),h("p",{class:"sub"},"Add specific prior work details, accomplishments that never made your resume, and portfolio examples with links. The digest judges fit against your Profile and the resume tailor can only use what is in it. You can add more at any time.")),
+    h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Privacy"),h("p",{class:"sub"},"Your data lives in your own Drive. The dashboard is built from counts, so company names, roles, links and contacts are never in it. Anything stronger than your record is flagged for your approval before it reaches a resume."))));
+};
+
+/* ===== Profile ===== */
+VIEWS.profile=function(){
+  var out=h("div",{class:"stack"},
+   h("div",{class:"say"},"Your Profile is ready. Strongest angle: patient-facing scale and experimentation in health tech."),
+   h("div",{class:"card flat"},h("div",{class:"lab"},"Tagline"),h("p",{style:"margin-top:4px;font-weight:600"},"Group Product Manager in patient-facing health tech. Scaled a patient app from 180K to 640K monthly members and cut scheduling call volume 38%.")),
+   h("div",{class:"card flat"},h("div",{class:"lab"},"Themes"),h("div",{class:"chips",style:"margin-top:8px"},["Patient-facing scale","Experimentation","0 to 1 launches","Leading people","Regulated platforms"].map(function(t){return h("span",{class:"chip"},t)}))),
+   h("div",{class:"card flat"},h("div",{class:"lab"},"Proof points"),
+    h("ul",{style:"margin:8px 0 0;padding-left:18px"},
+     h("li",null,h("span",{class:"pill ok"},"lead")," Launched self-scheduling: 38% fewer scheduling calls, about $2.1M saved a year."),
+     h("li",null,h("span",{class:"pill ok"},"lead")," Self-serve dashboard builder, 0 to 1: 4,200 accounts and $7.5M ARR in 18 months."),
+     h("li",null,h("span",{class:"pill ok"},"lead")," 60+ onboarding experiments: activation 22% to 31%."),
+     h("li",null,h("span",{class:"pill warn"},"co-lead")," Notification platform migration: latency 9 minutes to under 40 seconds."),
+     h("li",null,h("span",{class:"pill"},"contribute")," HIPAA-compliant clinician messaging, rollout to 120 clinics."))),
+   h("div",{class:"g2"},
+    h("div",{class:"card flat"},h("div",{class:"lab"},"Honest gaps"),h("ul",{style:"margin:8px 0 0;padding-left:18px"},h("li",null,"No payments or marketplace experience"),h("li",null,"No fintech employer"),h("li",null,"HIPAA work was a contribution, not a lead"))),
+    h("div",{class:"card flat"},h("div",{class:"lab"},"Double-check these"),h("ul",{style:"margin:8px 0 0;padding-left:18px"},h("li",null,"Date you became Group PM"),h("li",null,"How many of the 6 were PMs, and how many reported to you"),h("li",null,"Where the 3 mentored PMs worked")))));
+  var steps=["Reading your resume and portfolio links","Writing target direction and priorities","Recording each accomplishment with your level of ownership","Finding themes and honest gaps","Saving the Profile to your Drive"];
+  return h("div",{class:"wrap"},
+   head("1","What you're looking for","Tell Claude what you want, what matters most, and what you have done. It builds one verified record that every other stage reads.","profile-builder"),
+   h("div",{class:"cols"},
+    h("div",{class:"stack"},
+     h("div",{class:"card"},h("h2",{style:"margin-bottom:12px"},"Your answers"),
+      h("dl",{class:"kv"},h("dt",null,"Roles"),h("dd",null,"Group Product Manager, Director of Product, Principal PM"),h("dt",null,"Pay floor"),h("dd",null,"Base $190K, total $280K"),h("dt",null,"Where"),h("dd",null,"Remote US, or hybrid within 30 miles of Austin (78704)"),h("dt",null,"Industries"),h("dd",null,h("div",{class:"chips"},h("span",{class:"chip"},"Health tech"),h("span",{class:"chip"},"Fintech"),h("span",{class:"chip"},"B2B SaaS"),h("span",{class:"chip no"},"No crypto"),h("span",{class:"chip no"},"No gambling"))),
+       h("dt",null,"Must-haves"),h("dd",null,"Manages or mentors people. Owns a roadmap with metric accountability."),h("dt",null,"Deal-breakers"),h("dd",null,"Fully onsite outside Austin. Startups under 50 people."),h("dt",null,"Rank"),h("dd",null,"1 Scope and level, 2 Mission and domain, 3 Compensation, 4 Flexibility"))),
+     h("div",{class:"card"},h("h2",{style:"margin-bottom:4px"},"Detail you added"),h("p",{class:"sub",style:"margin-bottom:10px;font-size:14px"},"More specific detail gives better digests and resumes."),
+      h("div",{class:"stack",style:"gap:8px;font-size:14px"},
+       h("div",null,h("span",{class:"pill ok"},"added")," Resume"),h("div",null,h("span",{class:"pill ok"},"added")," Accomplishments not on the resume (mentored 3 PMs)"),
+       h("div",null,h("span",{class:"pill ok"},"added")," Portfolio: booking case study, conference talk"),h("div",null,h("span",{class:"pill ok"},"added")," Kudos: CEO all-hands recognition"),
+       h("div",null,h("span",{class:"pill warn"},"add")," Performance reviews or recommendations")))),
+    h("div",{class:"stack"},runner(steps,out,"Build my Profile"),out)),
+   behind("profile-builder","Job Search / Profile (Google Doc)","Your resume, portfolio links and answers"));
+};
+
+/* ===== Scout ===== */
+VIEWS.scout=function(){
+  var sort=function(a,b){var d=b.posted-a.posted;if(d)return d;var f=(a.fit==="Apply"?0:1)-(b.fit==="Apply"?0:1);if(f)return f;return (b.comp||0)-(a.comp||0)};
+  var list=SCOUT.slice().sort(sort);
+  var rows=list.map(function(r){return h("tr",null,h("td",null,h("div",{style:"font-weight:600"},r.co),h("div",{class:"sub",style:"font-size:13.5px"},r.role),h("div",{class:"sub",style:"font-size:13px;margin-top:4px"},h("b",{style:"color:var(--ink)"},"Why it matches you: "),r.why)),
+    h("td",null,fdate(r.posted)),h("td",null,r.where),h("td",null,r.compTxt),h("td",null,h("span",{class:"pill "+(r.fit==="Apply"?"ok":"warn")},r.fit)),
+    h("td",null,r.fit==="Apply"?h("button",{class:"btn sm",type:"button",onclick:function(){go("tailor")}},"Tailor"):h("span",{class:"sub",style:"font-size:13px"},"Baseline for now")))});
+  return h("div",{class:"wrap"},
+   head("2","How to find it","An agent runs twice a day, searches for roles that match your priorities and leaves one digest in your Drive. Newest posting first, then fit, then compensation.","scout agent"),
+   h("div",{class:"g3"},
+    h("div",{class:"card kpi"},h("div",{class:"lab"},"Schedule"),h("div",{class:"v",style:"font-size:20px"},"8:00 and 14:00"),h("div",{class:"s"},"Central time, every day")),
+    h("div",{class:"card kpi"},h("div",{class:"lab"},"Looking back"),h("div",{class:"v",style:"font-size:20px"},"7 days"),h("div",{class:"s"},"Postings with a visible date")),
+    h("div",{class:"card kpi"},h("div",{class:"lab"},"Delivered to"),h("div",{class:"v",style:"font-size:20px"},"Drive + a draft"),h("div",{class:"s"},"A Gmail draft to yourself, never sent"))),
+   h("div",{class:"card"},h("div",{style:"display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px"},h("div",null,h("h2",null,"Digest, Oct 21, afternoon"),h("p",{class:"sub",style:"font-size:14px"},"5 roles match. 2 are Apply, 2 are Stretch, 1 more is listed as unverified below.")),h("span",{class:"pill acc"},"Sample digest")),
+    h("div",{class:"tablewrap"},h("table",null,h("tr",null,h("th",null,"Role"),h("th",null,"Posted"),h("th",null,"Location"),h("th",null,"Compensation"),h("th",null,"Fit"),h("th",null,"")),rows)),
+    h("details",null,h("summary",null,"Unverified, no visible posting date"),UNVER.map(function(u){return h("div",{class:"note",style:"margin-top:8px"},h("b",null,u.co+", "+u.role),h("div",null,u.note+" Never marked Apply."))}))),
+   h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"What it checks every run"),
+    h("ul",{style:"margin:0;padding-left:18px"},h("li",null,"Your must-haves and deal-breakers are filters. Your ranked priorities order roles that tie."),h("li",null,"Roles already in your tracker are skipped."),h("li",null,"Every entry links to the posting and shows a one-line reason it matches you."),h("li",null,"Anything without a visible date goes to the unverified list instead of being padded in."))),
+   behind("Scheduled agent using the scout prompt","Job Search / Daily Digest (Google Doc), tracker rows with Cohort = Scouted","Your Profile and Tracker"));
+};
+
+/* ===== Tailor ===== */
+VIEWS.tailor=function(){
+  var cfg={
+   acme:{fit:"Apply",effort:"Full tailor",why:"Every minimum is backed by your record, the domain is your home turf, and a warm path exists (see stage 4).",
+    reqs:[["Lead 4 to 6 PMs","Adjacent","Led a team of 6 PMs and designers. The PM split is unconfirmed."],["Patient scheduling strategy","Direct","Self-scheduling launch, 38% fewer calls."],["Care navigation","Adjacent","Patient app and scheduling, not navigation itself."],["8+ years of product","Direct","9 years, 2017 to 2026."],["Experimentation","Direct","60+ experiments, A/B plans, conference talk."],["SQL","Direct","Listed in your tools."],["HIPAA","Adjacent","Contributed; owned requirements and rollout to 120 clinics."],["Marketplace or payments (bonus)","Gap","No evidence."]],
+    log:["New tagline and summary lead with the scheduling results.","Northwind bullets reordered: team growth, scheduling launch, HIPAA rollout, notifications.","Skills line puts experimentation and SQL first.","Every number and employer unchanged."],
+    verify:{orig:"Contributed to the HIPAA-compliant messaging launch (secure clinician chat); owned requirements and rollout to 120 clinics.",neu:"Partnered with clinical teams to roll out HIPAA-compliant secure clinician chat to 120 clinics, owning requirements and rollout.",why:"Raises the level of ownership from contributed to partnered."}},
+   meridian:{fit:"Stretch",effort:"Baseline resume for now",why:"Level, scope and Austin hybrid fit. Payments is a gap. Tailor after a referral or new evidence, otherwise send the baseline with a short application.",
+    reqs:[["Director-level scope","Direct","Group PM leading 6, P&L-style metric accountability."],["Consumer product at scale","Direct","640K monthly members."],["Payments or fintech","Gap","No evidence."],["Experimentation","Direct","60+ experiments."],["Austin hybrid","Direct","Lives in Austin."]],
+    log:["No tailoring yet. A referral or payments evidence would upgrade this to Apply."],verify:null}};
+  var sel=h("select",{id:"posting","aria-label":"Choose a posting"},h("option",{value:"acme"},"Acme Care Navigation, Group PM (Apply)"),h("option",{value:"meridian"},"Meridian Pay, Director of Product (Stretch)"));
+  var out=h("div",{class:"stack"});
+  var state={keep:false};
+  function paint(){var c=cfg[sel.value];out.textContent="";
+    out.appendChild(h("div",{class:"card raised"},h("div",{style:"display:flex;gap:8px;flex-wrap:wrap;align-items:center"},h("span",{class:"pill "+(c.fit==="Apply"?"ok":"warn")},"Fit call: "+c.fit),h("span",{class:"pill acc"},"Effort: "+c.effort)),h("p",{style:"margin-top:10px"},c.why)));
+    out.appendChild(h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Requirements against your record"),h("div",{class:"tablewrap"},h("table",null,h("tr",null,h("th",null,"Requirement"),h("th",null,"Evidence"),h("th",null,"Where")),c.reqs.map(function(r){return h("tr",null,h("td",null,r[0]),h("td",null,h("span",{class:"pill "+(r[1]==="Direct"?"ok":r[1]==="Adjacent"?"warn":"crit")},r[1])),h("td",null,r[2]))})))));
+    if(c.verify){var b=h("div",{class:"card"},h("h2",{style:"margin-bottom:4px"},"Needs your approval"),h("p",{class:"sub",style:"font-size:14px;margin-bottom:10px"},"Claude never raises your level of ownership without asking."),
+      h("div",{class:"g2"},h("div",null,h("div",{class:"lab"},"Your resume says"),h("div",{class:"msg",style:"margin-top:4px"},c.verify.orig)),h("div",null,h("div",{class:"lab"},"Claude suggests"),h("div",{class:"msg",style:"margin-top:4px"},c.verify.neu))),
+      h("p",{class:"sub",style:"font-size:13.5px;margin:8px 0"},c.verify.why));
+      var res=h("div",{class:"pill",style:"margin-top:10px"},"Waiting for your decision");
+      b.appendChild(h("div",{style:"display:flex;gap:8px;flex-wrap:wrap"},h("button",{class:"btn pri sm",type:"button",onclick:function(){state.keep=false;res.className="pill warn";res.textContent="Suggested wording approved"}},"Approve suggestion"),h("button",{class:"btn sm",type:"button",onclick:function(){state.keep=true;res.className="pill ok";res.textContent="Kept your original wording"}},"Keep my original")));
+      b.appendChild(res);out.appendChild(b)}
+    out.appendChild(h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"What changed and why"),h("ul",{style:"margin:0;padding-left:18px"},c.log.map(function(l){return h("li",null,l)}))));
+  }
+  sel.addEventListener("change",paint);paint();
+  return h("div",{class:"wrap"},
+   head("3","How and when to customize","Customizing takes effort, so Claude spends it where it changes the odds. A fit call decides whether you get a full tailor, a light tailor or your baseline resume.","resume-tailor"),
+   h("div",{class:"g4"},[["Apply + warm path","Full tailor"],["Apply, cold","Light tailor"],["Stretch","Baseline until a referral"],["Skip","No tailoring"]].map(function(x){return h("div",{class:"card flat"},h("div",{class:"lab"},x[0]),h("div",{style:"font-weight:600;margin-top:4px"},x[1]))})),
+   h("div",{class:"card"},h("label",{class:"f",for:"posting"},"Posting from your digest"),sel),
+   out,
+   behind("resume-tailor","Job Search / Tailored Resumes (Google Doc), Tracker row (cohort Tailored)","Your Profile and the posting"));
+};
+
+/* ===== Warm contacts ===== */
+VIEWS.warm=function(){
+  var C=[
+   {name:"Priya Nair",rel:"Former colleague at Northwind. Now Director of Clinical Operations at Acme.",why:"Works in the function you would partner with and can speak to your work. Last talked 5 months ago.",rank:"Best path",
+    msg:"Hi Priya, it has been a while. I saw Acme is hiring a Group PM for Access and Scheduling, and it is close to what I did at Northwind with self-scheduling. Would you be open to a 15 minute chat about the team, or to passing my name along? Role link: acme.example/jobs/gpm-access. Happy to send a short summary of the results first. No pressure either way. Thanks, Jordan"},
+   {name:"Marcus Webb",rel:"Former manager at Brightpath. Advises two health tech startups.",why:"Knows the VP of Product at Acme from a past board. Can introduce you if you ask.",rank:"Second-degree route",
+    msg:"Hi Marcus, hope you are well. I am looking at a Group PM role at Acme Care Navigation. I understand you know their VP of Product. Would you be comfortable making a short intro? I can send two lines on why I fit so it is easy to forward. Thanks, Jordan"},
+   {name:"Dana Cho",rel:"UT Austin alum, Senior PM at Acme.",why:"Same school and the same function, but you have not met. A short note is reasonable, a referral ask is early.",rank:"Cold-warm",
+    msg:"Hi Dana, I am a fellow UT alum and a product leader in health tech. I am applying for the Group PM role at Acme and would value ten minutes to hear what the team is like. Happy to work around your schedule. Thanks, Jordan"}];
+  var sel=0,msgBox=h("div",{class:"msg",id:"msgtxt"}),title=h("h2",null),status=h("span",{class:"pill"},"Draft only");
+  var rows=C.map(function(c,i){var r=h("tr",{class:"click"+(i===0?" sel":""),tabindex:"0"},h("td",null,h("div",{style:"font-weight:600"},c.name),h("div",{class:"sub",style:"font-size:13.5px"},c.rel)),h("td",null,c.why),h("td",null,h("span",{class:"pill "+(i===0?"ok":"")},c.rank)));
+    function pick(){sel=i;rows.forEach(function(x,j){x.className="click"+(j===i?" sel":"")});show()}
+    r.addEventListener("click",pick);r.addEventListener("keydown",function(e){if(e.key==="Enter")pick()});return r});
+  function show(){title.textContent="Draft to "+C[sel].name;msgBox.textContent=C[sel].msg;status.className="pill";status.textContent="Draft only"}
+  show();
+  var mark=h("button",{class:"btn sm",type:"button",onclick:function(){status.className="pill ok";status.textContent="Tracker updated: Warm contact = Yes, follow up in 5 business days"}},"I sent it, update my tracker");
+  return h("div",{class:"wrap"},
+   head("4","Warm contacts","Referred applications convert far better than cold ones, so Claude looks for a person before you apply. It ranks who can help and drafts a short, honest note. You send it.","warm-contacts"),
+   h("div",{class:"card"},h("h2",{style:"margin-bottom:2px"},"Who you know at Acme Care Navigation"),h("p",{class:"sub",style:"font-size:14px;margin-bottom:8px"},"Ranked by influence on the hire, warmth and recency, and relevance to the role."),
+    h("div",{class:"tablewrap"},h("table",null,h("tr",null,h("th",null,"Person"),h("th",null,"Why this ranking"),h("th",null,"Path")),rows))),
+   h("div",{class:"card"},h("div",{style:"display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px"},title,status),msgBox,
+    h("div",{style:"display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"},copyBtn(function(){return msgBox.textContent}),mark),
+    h("p",{class:"sub",style:"font-size:13px;margin-top:10px"},"Claude never contacts anyone for you and never claims a relationship your records do not show.")),
+   behind("warm-contacts","Tracker columns Warm contact, Contact name and Next action","Contacts you choose to share"));
+};
+
+/* ===== Interview prep ===== */
+VIEWS.interview=function(){
+  var tab="points";
+  var body=h("div",{class:"stack"});
+  var FB={q:"Tell me about a time you used data to change a product decision.",
+   good:"Opens with the 38% result, names the A/B plan you wrote, and keeps your role clear.",
+   miss:"The decision itself is buried. Interviewers will ask what you did when the test showed a flat result.",
+   tight:"We believed self-scheduling would cut calls. I wrote the test plan and ran 14 interviews first. The experiment showed a 38% drop in scheduling calls, so we shipped it to every clinic. That saved about $2.1M a year."};
+  function paint(){body.textContent="";
+    if(tab==="points"){body.appendChild(h("div",{class:"card"},
+      h("div",{class:"lab"},"Open with"),h("p",{style:"margin:4px 0 14px"},"I lead patient-facing product in health tech. At Northwind I grew the patient app from 180K to 640K monthly members and launched self-scheduling that cut scheduling calls by 38%."),
+      h("div",{class:"lab"},"Land these"),h("ul",{style:"margin:4px 0 14px;padding-left:18px"},h("li",null,"Scheduling results: 38% fewer calls, about $2.1M saved a year."),h("li",null,"Experimentation: 60+ tests, activation 22% to 31%."),h("li",null,"People: led 6, mentored 3 PMs to promotion."),h("li",null,"Domain: patient-facing and HIPAA-aware product.")),
+      h("div",{class:"lab"},"If asked, say"),h("dl",{class:"kv",style:"margin:4px 0 14px"},h("dt",null,"Why Acme?"),h("dd",null,"Scheduling and navigation is the part of care patients feel first, and it is where I have shipped results."),h("dt",null,"Biggest gap?"),h("dd",null,"Payments. I would pair with a payments lead and use the same experiment discipline."),h("dt",null,"How do you lead PMs?"),h("dd",null,"Clear metrics, weekly reviews of decisions, and mentoring toward promotion.")),
+      h("div",{class:"g2"},h("div",null,h("div",{class:"lab"},"Ask"),h("ul",{style:"margin:4px 0 0;padding-left:18px"},h("li",null,"How do scheduling and care navigation share a roadmap today?"),h("li",null,"What would success look like at 6 months?"))),
+       h("div",null,h("div",{class:"lab"},"Watch out"),h("ul",{style:"margin:4px 0 0;padding-left:18px"},h("li",null,"The PM split on your team of 6 is unconfirmed. Settle it before you talk."),h("li",null,"HIPAA work was a contribution. Do not say you led it."))))))}
+    else if(tab==="practice"){
+      var fbBox=h("div",{class:"stack"}),ta=h("textarea",{id:"ans",placeholder:"Type your answer"});
+      ta.value="We tested self-scheduling, and calls dropped by 38% so we shipped it everywhere.";
+      var showFb=function(){
+        fbBox.textContent="";
+        fbBox.appendChild(h("div",{class:"say"},h("b",null,"What landed. "),FB.good));
+        fbBox.appendChild(h("div",{class:"msg"},h("b",null,"What was missing. "),FB.miss));
+        fbBox.appendChild(h("div",null,h("div",{class:"lab"},"A tighter version"),h("div",{class:"msg",style:"margin-top:4px"},FB.tight),h("div",{style:"margin-top:8px"},copyBtn(function(){return FB.tight}))));
+        fbBox.appendChild(h("p",{class:"sub",style:"font-size:13px"},"Demo feedback is pre-written. In the full version Claude reads your actual answer and asks one follow-up."));
+      };
+      body.appendChild(h("div",{class:"card"},h("div",{class:"lab"},"Interviewer"),h("p",{style:"margin:4px 0 12px;font-weight:600"},FB.q),h("label",{class:"f",for:"ans"},"Your answer"),ta,
+        h("div",{style:"margin-top:10px"},h("button",{class:"btn pri",type:"button",onclick:showFb},"Get feedback")),h("div",{style:"margin-top:12px"},fbBox)));
+    }
+    else{body.appendChild(h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Notes log"),h("div",{class:"tablewrap"},h("table",null,h("tr",null,h("th",null,"Date"),h("th",null,"Session"),h("th",null,"What landed / what to fix")),
+      h("tr",null,h("td",null,"Oct 21"),h("td",null,"Practice, data question"),h("td",null,"Lead with the result. State the decision in one sentence.")),
+      h("tr",null,h("td",null,"Oct 19"),h("td",null,"Intake from referral"),h("td",null,"Focus areas: scheduling metrics, leading PMs."))))))}
+  }
+  var seg=h("div",{class:"seg",role:"group","aria-label":"Prep mode"},[["points","Speaking points"],["practice","Practice"],["log","Notes log"]].map(function(t){var b=h("button",{type:"button","aria-pressed":t[0]===tab?"true":"false",onclick:function(){tab=t[0];Array.prototype.forEach.call(seg.children,function(x,i){x.setAttribute("aria-pressed",["points","practice","log"][i]===tab?"true":"false")});paint()}},t[1]);return b}));
+  paint();
+  return h("div",{class:"wrap"},
+   head("5","Interview prep and speaking points","One prep doc per company. Practice rounds with feedback, and a one-screen set of speaking points for interview day.","interview-prep"),
+   h("div",null,h("div",{class:"lab",style:"margin-bottom:6px"},"Acme Care Navigation, Group PM"),seg),body,
+   behind("interview-prep","Job Search / Interview Prep (one doc per company), linked in the Tracker","Your Profile, the posting, your notes"));
+};
+
+/* ===== Negotiation ===== */
+VIEWS.negotiate=function(){
+  var S={base:205000,bonus:10,equity:120000,sign:15000,target:225000,walk:280000};
+  var res=h("div",{class:"stack"}),drafts=h("div",{class:"stack"}),variant="cash";
+  function inp(id,label,key,step){var i=h("input",{id:id,type:"number",inputmode:"numeric",step:step||1000,min:0});i.value=S[key];i.addEventListener("input",function(){S[key]=Math.max(0,Number(i.value)||0);calc()});return h("div",null,h("label",{class:"f",for:id},label),i)}
+  function calc(){
+    var bonus=S.base*S.bonus/100,eq=S.equity/4,y1=S.base+bonus+eq+S.sign,avg=S.base+bonus+eq,y4=avg*4+S.sign;
+    var gap=S.walk-y1;res.textContent="";
+    res.appendChild(h("div",{class:"g3"},
+      h("div",{class:"card kpi"},h("div",{class:"lab"},"Year 1 total"),h("div",{class:"v"},money(y1)),h("div",{class:"s"},"Base + bonus + equity per year + sign-on")),
+      h("div",{class:"card kpi"},h("div",{class:"lab"},"Four-year total"),h("div",{class:"v"},money(y4)),h("div",{class:"s"},"Equity value is uncertain")),
+      h("div",{class:"card kpi"},h("div",{class:"lab"},"Against your floor"),h("div",{class:"v"},gap>0?"-"+money(gap):"+"+money(-gap)),h("div",{class:"s"},h("span",{class:"pill "+(gap>0?"crit":"ok")},gap>0?"Below your $"+Math.round(S.walk/1000)+"K floor":"Meets your floor")))));
+    var ask=Math.max(S.target,S.base);
+    var T={cash:"Thank you again for the offer. I am excited about the team and the work on scheduling. Based on the scope of the role and my results leading this area, I was hoping for a base of "+money(ask)+". Is there flexibility to move toward that? I am confident we can find something that works.",
+      equity:"Thank you for the offer. I am excited to join. The base is in a good place for me. I would like to talk about the equity grant, since I am taking on a role that owns the full scheduling roadmap. Could we look at increasing the grant from "+money(S.equity)+" to "+money(Math.round(S.equity*1.25/1000)*1000)+" over four years?",
+      level:"Thank you for the offer. I am excited about the role. Given that I would lead 4 to 6 PMs and own strategy across web and mobile, I would like to discuss whether Director is the right level. If it is, I would expect compensation to follow that level."};
+    drafts.textContent="";
+    var seg=h("div",{class:"seg",role:"group","aria-label":"Reply approach"},[["cash","Cash-focused"],["equity","Equity-focused"],["level","Level-focused"]].map(function(t){return h("button",{type:"button","aria-pressed":t[0]===variant?"true":"false",onclick:function(){variant=t[0];calc()}},t[1])}));
+    var box=h("div",{class:"msg"},T[variant]);
+    drafts.appendChild(h("div",{class:"card"},h("h2",{style:"margin-bottom:10px"},"Draft reply"),seg,h("div",{style:"margin-top:12px"},box),h("div",{style:"margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"},copyBtn(function(){return box.textContent}),h("span",{class:"sub",style:"font-size:13px"},"Claude drafts. You decide what to send."))))}
+  calc();
+  return h("div",{class:"wrap"},
+   head("6","Negotiation","When an offer arrives, Claude breaks it into parts, compares it with your floor, helps you set a target and walk-away, and drafts the reply. Change the numbers below.","negotiation"),
+   h("div",{class:"card"},h("h2",{style:"margin-bottom:4px"},"Offer from Acme Care Navigation (sample)"),h("p",{class:"sub",style:"font-size:14px;margin-bottom:12px"},"Edit any value to see how the totals change."),
+    h("div",{class:"g3"},inp("o-base","Base salary ($)","base"),inp("o-bonus","Target bonus (%)","bonus",1),inp("o-eq","Equity grant over 4 years ($)","equity"),inp("o-sign","Sign-on ($)","sign"),inp("o-target","Your target base ($)","target"),inp("o-walk","Your total pay floor ($)","walk"))),
+   res,drafts,
+   h("div",{class:"card"},h("h2",{style:"margin-bottom:6px"},"Before you accept"),h("ul",{style:"margin:0;padding-left:18px"},h("li",null,"Get every number, the level and title, the start date and the equity terms in writing."),h("li",null,"Have a professional review equity and contract terms."),h("li",null,"Sign-on and equity usually move before base does."))),
+   behind("negotiation","Tracker: Outcome, Furthest stage and Notes","Your Profile floor and the offer you share"));
+};
+
+/* ===== Market check ===== */
+VIEWS.market=function(){
+  var out=h("div",{class:"stack"},
+   h("div",{class:"say"},"Bottom line: your search is a channel problem, not a market problem. Cold applications are not converting; warm paths are."),
+   h("div",{class:"card flat"},h("div",{class:"lab"},"The market right now (sample findings, each with a source and date)"),
+    h("div",{class:"tablewrap",style:"margin-top:8px"},h("table",null,h("thead",null,h("tr",null,h("th",null,"Signal"),h("th",null,"What the data says"),h("th",null,"Type"))),
+     h("tbody",null,[["Competition","About 244 applications per opening, up from about 115 in 2022","data"],["Time to hire","About 57 days to fill an opening","data"],["Search length","Average unemployment spell about 26 weeks","data"],["Level squeeze","Director and manager PM headcount down about 31 to 35% since 2022","data"],["Channels","Referrals and recruiters produce a far larger share of hires than of applications","data"],["Seeker reports","Mass applying meets mass screening; screens test judgment, not vocabulary","report"]].map(function(r){return h("tr",null,h("td",null,r[0]),h("td",null,r[1]),h("td",null,h("span",{class:"pill "+(r[2]==="data"?"ok":"warn")},r[2])))}))))),
+   h("div",{class:"card flat"},h("div",{class:"lab"},"How your search compares"),
+    h("div",{class:"tablewrap",style:"margin-top:8px"},h("table",null,h("thead",null,h("tr",null,h("th",null,"Group"),h("th",null,"Applications"),h("th",null,"Screens"),h("th",null,"Rate"))),
+     h("tbody",null,[["Warm contact","14","4","29%"],["Cold","50","2","4%"],["Tailored resume","27","4","15%"],["Baseline resume","37","2","5%"]].map(function(r){return h("tr",null,r.map(function(c){return h("td",null,c)}))})))),
+    h("p",{class:"sub",style:"font-size:13.5px;margin-top:8px"},"Bottleneck: applications to screens, driven by channel. Confidence: medium. Groups under 10 applications would be marked indicative only. Data gap: 6 rows have no outcome.")),
+   h("div",{class:"card flat"},h("div",{class:"lab"},"Where to focus"),
+    h("ol",{style:"margin:8px 0 0;padding-left:20px;display:grid;gap:8px"},
+     h("li",null,h("b",null,"Shift the weekly mix to warm paths."),"  Evidence: 29% vs 4% screen rate. Helps: applications to screens. Made by: warm contacts stage."),
+     h("li",null,h("b",null,"Build a 30-company target list and apply within 3 days of posting."),"  Evidence: openings draw hundreds of applicants; early applicants get more attention. Made by: scout filters."),
+     h("li",null,h("b",null,"Debrief every final round."),"  Evidence: 2 finals, 0 offers, no notes. Made by: interview prep."),
+     h("li",null,h("b",null,"Stop: "),"untargeted applications to generic titles.")),
+    h("p",{class:"sub",style:"font-size:13.5px;margin-top:8px"},"Checkpoint: compare screen rate by channel again in 4 weeks.")));
+  var steps=["Reading your Profile and Tracker","Researching current demand, competition and channel data","Labelling each finding as data, report or claim","Comparing your funnel by channel, resume and role type","Finding the bottleneck and ranking changes","Saving the report to your Drive"];
+  return h("div",{class:"wrap"},
+   head("7","Market check","Claude researches your market, reads your own funnel, finds where the search stalls and ranks where to put your effort. Run it at the start and every 4 to 6 weeks.","market-check"),
+   runner(steps,out,"Run with sample data"),out,
+   behind("market-check","Job Search / Dashboard (a sourced report), changes logged in the Profile","Your Profile, your Tracker, current public sources"));
+};
+
+/* ===== Dashboard ===== */
+var range={preset:"all",from:null,to:null};
+try{var sv=JSON.parse(localStorage.getItem("jsc-range")||"null");if(sv&&sv.preset)range.preset=sv.preset}catch(e){}
+function bounds(){var min=APPS[0].d,max=TODAY;
+  if(range.preset==="14")return [new Date(TODAY.getTime()-13*DAY),max];
+  if(range.preset==="30")return [new Date(TODAY.getTime()-29*DAY),max];
+  if(range.preset==="custom"&&range.from&&range.to)return [range.from,range.to];
+  return [min,max]}
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function parseYmd(s){var p=s.split("-");return p.length===3?new Date(+p[0],+p[1]-1,+p[2]):null}
+
+function sankey(rows){
+  var W=900,H=430,L=10,R=140,NW=14,names=["Applied","Phone screen","Interview 1","Interview 2","Offer"];
+  var n=[0,0,0,0,0,0],i;for(i=1;i<=5;i++)n[i]=rows.filter(function(r){return r.stage>=i}).length;
+  var box=h("div",{class:"chart"}),svg=se("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":"Where applications end up: "+n[1]+" applied, "+n[2]+" phone screens, "+n[3]+" first interviews, "+n[4]+" second interviews, "+n[5]+" offers"});
+  var s=(H-70-24)/Math.max(n[1],1),colX=function(c){return L+c*((W-L-R-NW)/4)};
+  var tip=h("div",{class:"tip"});
+  function show(ev,t){tip.textContent=t;tip.style.display="block";var r=box.getBoundingClientRect(),x=ev.clientX-r.left+12;if(x>r.width-200)x=ev.clientX-r.left-190;tip.style.left=Math.max(0,x)+"px";tip.style.top=(ev.clientY-r.top+12)+"px"}
+  function hide(){tip.style.display="none"}
+  function band(x0,y0,h0,x1,y1,fill,text){var mx=(x0+x1)/2,p=se("path",{d:"M"+x0+","+y0+"C"+mx+","+y0+" "+mx+","+y1+" "+x1+","+y1+"L"+x1+","+(y1+h0)+"C"+mx+","+(y1+h0)+" "+mx+","+(y0+h0)+" "+x0+","+(y0+h0)+"Z",fill:fill,stroke:"var(--pane)","stroke-width":1});
+    p.addEventListener("pointermove",function(e){show(e,text)});p.addEventListener("pointerleave",hide);svg.appendChild(p)}
+  var top=44,tops=[];
+  for(i=1;i<=5;i++)tops[i]=top;
+  var nodes=[],links=[];
+  for(i=1;i<=4;i++){
+    var out=rows.filter(function(r){return r.stage===i}),rej=out.filter(function(r){return r.out==="Rejected"}).length,wd=out.filter(function(r){return r.out==="Withdrawn"}).length,act=out.length-rej-wd;
+    var x0=colX(i-1)+NW,x1=colX(i),cy=top;
+    if(n[i+1]>0){band(x0,cy,n[i+1]*s,x1,top,"var(--flow)",n[i+1]+" of "+n[i]+" moved from "+names[i-1]+" to "+names[i]);}
+    cy+=n[i+1]*s;
+    var ty=top+n[i+1]*s+16;
+    [["Rejected",rej,"var(--gray-flow)","var(--gray-node)"],["Withdrawn",wd,"var(--gray-flow)","var(--gray-node)"],["Still active",act,"var(--flow2)","var(--s1-soft)"]].forEach(function(t){
+      if(!t[1])return;var hh=Math.max(t[1]*s,3);
+      band(x0,cy,t[1]*s,x1,ty,t[2],t[1]+" "+t[0].toLowerCase()+" after "+names[i-1]);
+      nodes.push({x:x1,y:ty,h:hh,fill:t[3],label:t[0]+" "+t[1],term:true,tip:t[1]+" "+t[0].toLowerCase()+" after "+names[i-1]});
+      cy+=t[1]*s;ty+=hh+8});
+  }
+  for(i=1;i<=5;i++)nodes.push({x:colX(i-1),y:top,h:Math.max(n[i]*s,n[i]?3:0),fill:"var(--s1)",label:names[i-1],count:n[i],term:false,tip:n[i]+" reached "+names[i-1]});
+  nodes.forEach(function(nd){if(!nd.h)return;var r=se("rect",{x:nd.x,y:nd.y,width:NW,height:nd.h,rx:3,fill:nd.fill});r.addEventListener("pointermove",function(e){show(e,nd.tip)});r.addEventListener("pointerleave",hide);svg.appendChild(r);
+    if(nd.term)svg.appendChild(se("text",{x:nd.x+NW+8,y:nd.y+Math.min(nd.h/2+4,16),fill:"var(--ink2)","font-size":12.5},nd.label));
+    else{svg.appendChild(se("text",{x:nd.x,y:22,fill:"var(--ink)","font-size":13,"font-weight":700},nd.label));svg.appendChild(se("text",{x:nd.x,y:38,fill:"var(--ink2)","font-size":12.5},String(nd.count)))}});
+  box.appendChild(svg);box.appendChild(tip);
+  var tbl=h("details",null,h("summary",null,"Show as table"),h("div",{class:"tablewrap"},h("table",null,h("tr",null,h("th",null,"Stage"),h("th",{class:"n"},"Reached"),h("th",{class:"n"},"Of applied")),names.map(function(nm,k){return h("tr",null,h("td",null,nm),h("td",{class:"n"},String(n[k+1])),h("td",{class:"n"},n[1]?Math.round(n[k+1]/n[1]*100)+"%":"-"))}))));
+  return h("div",null,box,tbl)}
+
+function groupBars(rows,keyFn,groups){
+  var max=Math.max.apply(null,groups.map(function(g){return rows.filter(function(r){return keyFn(r)===g}).length}).concat([1]));
+  return h("div",{class:"bars"},groups.map(function(g){var rs=rows.filter(function(r){return keyFn(r)===g}),sc=rs.filter(function(r){return r.stage>=2}).length;
+    if(!rs.length)return h("div",{class:"r"},h("span",null,g),h("span",{class:"track",style:"background:none"}),h("span",{class:"v"},"no data"));
+    var tr=h("span",{class:"track",style:"width:"+Math.max(rs.length/max*100,6)+"%"},h("span",{class:"fill",style:"width:"+(sc/rs.length*100)+"%"}));
+    tr.title=sc+" of "+rs.length+" reached a phone screen";
+    return h("div",{class:"r"},h("span",null,g),h("div",{style:"min-width:0"},tr),h("span",{class:"v"},sc+" of "+rs.length))}))}
+
+function weekly(rows,b){
+  var W=480,H=190,L=30,B=26,T=10,buckets={},ws=[];
+  rows.forEach(function(r){var d=new Date(r.d.getFullYear(),r.d.getMonth(),r.d.getDate()),dow=(d.getDay()+6)%7,m=new Date(d.getTime()-dow*DAY),k=ymd(m);buckets[k]=(buckets[k]||{n:0,sc:0,d:m});buckets[k].n++;if(r.stage>=2)buckets[k].sc++});
+  Object.keys(buckets).sort().forEach(function(k){ws.push(buckets[k])});
+  var box=h("div",{class:"chart"});if(!ws.length)return box;
+  var max=Math.max.apply(null,ws.map(function(w){return w.n})),top=Math.max(4,Math.ceil(max/2)*2),svg=se("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":"Applications sent per week"}),tip=h("div",{class:"tip"});
+  var y=function(v){return T+(H-T-B)*(1-v/top)};
+  [0,top/2,top].forEach(function(t){svg.appendChild(se("line",{x1:L,x2:W,y1:y(t),y2:y(t),stroke:"var(--line)"}));svg.appendChild(se("text",{x:L-8,y:y(t)+4,"text-anchor":"end",fill:"var(--ink3)","font-size":12},String(t)))});
+  var bw=Math.min(40,(W-L)/ws.length*0.62),step=(W-L-10)/ws.length;
+  ws.forEach(function(w,i){var x=L+10+i*step+(step-bw)/2,r=se("rect",{x:x,y:y(w.n),width:bw,height:y(0)-y(w.n),fill:"var(--flow)",rx:3});
+    var r2=w.sc?se("rect",{x:x,y:y(w.sc),width:bw,height:y(0)-y(w.sc),fill:"var(--s1)",rx:3}):null;
+    function sh(e){tip.textContent="Week of "+fdate(w.d)+": "+w.n+" applied, "+w.sc+" reached a screen";tip.style.display="block";var rr=box.getBoundingClientRect(),px=e.clientX-rr.left+12;if(px>rr.width-230)px=e.clientX-rr.left-230;tip.style.left=Math.max(0,px)+"px";tip.style.top="4px"}
+    [r,r2].forEach(function(el){if(!el)return;el.addEventListener("pointermove",sh);el.addEventListener("pointerleave",function(){tip.style.display="none"});svg.appendChild(el)});
+    if(i%2===0)svg.appendChild(se("text",{x:x+bw/2,y:H-8,"text-anchor":"middle",fill:"var(--ink3)","font-size":12},fdate(w.d)))});
+  box.appendChild(svg);box.appendChild(tip);return box}
+
+VIEWS.dashboard=function(){
+  var b=bounds(),lo=new Date(b[0].getFullYear(),b[0].getMonth(),b[0].getDate()),hi=new Date(b[1].getFullYear(),b[1].getMonth(),b[1].getDate(),23,59,59);
+  var rows=APPS.filter(function(r){return r.d>=lo&&r.d<=hi});
+  var n=rows.length,sc=rows.filter(function(r){return r.stage>=2}).length,iv=rows.filter(function(r){return r.stage>=3}).length,of=rows.filter(function(r){return r.stage>=5}).length;
+  var wm=rows.filter(function(r){return r.warm}),cd=rows.filter(function(r){return !r.warm});
+  function setPreset(p){range.preset=p;try{localStorage.setItem("jsc-range",JSON.stringify({preset:p}))}catch(e){}go("dashboard")}
+  var seg=h("div",{class:"seg",role:"group","aria-label":"Time range"},[["14","Last 14 days"],["30","Last 30 days"],["all","All time"]].map(function(p){return h("button",{type:"button","aria-pressed":range.preset===p[0]?"true":"false",onclick:function(){setPreset(p[0])}},p[1])}));
+  var f=h("input",{id:"from",type:"date",min:ymd(APPS[0].d),max:ymd(TODAY)}),t=h("input",{id:"to",type:"date",min:ymd(APPS[0].d),max:ymd(TODAY)});f.value=ymd(lo);t.value=ymd(hi);
+  function custom(){var a=parseYmd(f.value),z=parseYmd(t.value);if(!a||!z)return;if(a>z){var x=a;a=z;z=x}range={preset:"custom",from:a,to:z};go("dashboard")}
+  f.addEventListener("change",custom);t.addEventListener("change",custom);
+  function kpi(l,v,s){return h("div",{class:"card kpi"},h("div",{class:"lab"},l),h("div",{class:"v"},v),h("div",{class:"s"},s))}
+  function pct(a,b2){return b2?Math.round(a/b2*100)+"% of applied":"no applications"}
+  var body;
+  if(!n){body=h("div",{class:"card empty"},h("h2",null,"No applications in this range"),h("p",{class:"sub",style:"margin:6px auto 0"},"Choose a wider range or All time."))}
+  else body=h("div",{class:"wrap",style:"gap:16px"},
+    h("div",{class:"g4"},kpi("Applied",String(n),fdate(lo)+" to "+fdate(hi)),kpi("Phone screens",String(sc),pct(sc,n)),kpi("Interviews",String(iv),pct(iv,n)),kpi("Offers",String(of),of?pct(of,n):"none yet")),
+    h("div",{class:"card"},h("h2",null,"Where applications end up"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Of "+n+" applications, "+sc+" reached a phone screen and "+iv+" a first interview. "+rows.filter(function(r){return r.out==="Active"}).length+" are still active."),sankey(rows)),
+    h("div",{class:"g2"},
+      h("div",{class:"card"},h("h2",null,"Referred or cold"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Bar length is applications sent. The darker part reached a phone screen."),groupBars(rows,function(r){return r.warm?"Referred":"Cold"},["Referred","Cold"]),h("div",{class:"legend",style:"margin-top:8px"},h("span",null,h("i",{style:"background:var(--flow2)"}),"Applied"),h("span",null,h("i",{style:"background:var(--s1)"}),"Reached a screen"))),
+      h("div",{class:"card"},h("h2",null,"By resume version"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Does tailoring help? Compare reached-a-screen counts."),groupBars(rows,function(r){return r.ver},["Baseline v1","Baseline v2","Tailored"]))),
+    h("div",{class:"g2"},
+      h("div",{class:"card"},h("h2",null,"By source"),h("div",{style:"height:8px"}),groupBars(rows,function(r){return r.src},["Referral","LinkedIn","Company site","Recruiter","Greenhouse"])),
+      h("div",{class:"card"},h("h2",null,"Applications per week"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 6px"},"Lighter bar is applied, darker is reached a screen."),weekly(rows,b))));
+  return h("div",{class:"wrap"},
+   h("div",{class:"head"},h("div",{class:"row"},h("span",{class:"pill acc"},"Counts only")),h("h1",null,"Dashboard"),h("p",{class:"sub"},"What is working across your search. Company and role names never appear here.")),
+   h("div",{class:"card flat",style:"display:flex;gap:14px;flex-wrap:wrap;align-items:end"},h("div",null,h("div",{class:"lab",style:"margin-bottom:6px"},"Time range"),seg),h("div",{style:"flex:0 1 150px"},h("label",{class:"f",for:"from"},"From"),f),h("div",{style:"flex:0 1 150px"},h("label",{class:"f",for:"to"},"To"),t)),
+   body,
+   behind("Dashboard builder","Job Search / Dashboard","Counts from your Tracker"));
+};
+
+/* chrome */
+var tb=$("themebtn");
+function setTheme(t){if(t)document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme");tb.textContent=t==="dark"?"Light":t==="light"?"Dark":"Theme"}
+var th=null;try{th=localStorage.getItem("jsc-theme")}catch(e){}setTheme(th);
+tb.addEventListener("click",function(){var r=document.documentElement,d=r.getAttribute("data-theme")==="dark"||(!r.getAttribute("data-theme")&&matchMedia("(prefers-color-scheme: dark)").matches);th=d?"light":"dark";try{localStorage.setItem("jsc-theme",th)}catch(e){}setTheme(th)});
+var hs=(location.hash||"").slice(1);if(hs&&VIEWS[hs])cur=hs;
+render();
+})();
+</script>
