@@ -318,7 +318,7 @@ VIEWS.scout=function(){
     h("td",null,fdate(r.posted)),h("td",null,r.where),h("td",null,r.compTxt),h("td",null,h("span",{class:"pill "+(r.fit==="Apply"?"ok":"warn")},r.fit)),
     h("td",null,r.fit==="Apply"?h("button",{class:"btn sm",type:"button",onclick:function(){go("tailor")}},"Tailor"):h("span",{class:"sub",style:"font-size:13px"},"Baseline for now")))});
   return h("div",{class:"wrap"},
-   head("2","How to find it","An agent runs twice a day, searches for roles that match your priorities and leaves one digest in your Drive. Newest posting first, then fit, then compensation.","scout agent"),
+   head("2","How to find it","Taking your time back... Spending many hours every day combing through the latest postings to make sure you're at the front of the line isn't the best use of your valuable time. An agent runs twice a day, searches for roles that match your priorities and leaves one digest in your Drive. Newest posting first, then fit, then compensation.","scout agent"),
    h("div",{class:"g3"},
     h("div",{class:"card kpi"},h("div",{class:"lab"},"Schedule"),h("div",{class:"v",style:"font-size:20px"},"8:00 and 14:00"),h("div",{class:"s"},"Central time, every day")),
     h("div",{class:"card kpi"},h("div",{class:"lab"},"Looking back"),h("div",{class:"v",style:"font-size:20px"},"7 days"),h("div",{class:"s"},"Postings with a visible date")),
