@@ -357,7 +357,7 @@ VIEWS.tailor=function(){
   }
   sel.addEventListener("change",paint);paint();
   return h("div",{class:"wrap"},
-   head("3","How and when to customize","Customizing takes effort, so Claude spends it where it changes the odds. A fit call decides whether you get a full tailor, a light tailor or your baseline resume.","resume-tailor"),
+   head("3","How and when to customize","It's not possible to pull all of your transferable skills and accomplishments into a single resume. This is where you get to highlight what you have to offer that is most important to a specific role. All while keeping your resume crisp and relevant without sacrificing your time or quality of your brand. Customizing takes effort, so Claude spends it where it changes the odds. A fit call decides whether you get a full tailor, a light tailor or your baseline resume.","resume-tailor"),
    h("div",{class:"g4"},[["Apply + warm path","Full tailor"],["Apply, cold","Light tailor"],["Stretch","Baseline until a referral"],["Skip","No tailoring"]].map(function(x){return h("div",{class:"card flat"},h("div",{class:"lab"},x[0]),h("div",{style:"font-weight:600;margin-top:4px"},x[1]))})),
    h("div",{class:"card"},h("label",{class:"f",for:"posting"},"Posting from your digest"),sel),
    out,
