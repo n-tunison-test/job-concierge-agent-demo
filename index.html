@@ -207,7 +207,7 @@ var SCOUT=[
 var UNVER=[{co:"Orchid Care",role:"Group Product Manager",note:"No posting date visible; may be an old listing."}];
 
 /* ---------- views ---------- */
-var VIEWS={}, NAV0=[["intro","Intro and setup"],["why","Why the Concierge"],["dashboard","Dashboard"]],
+var VIEWS={}, NAV0=[["why","Why the Concierge"],["intro","Intro and setup"],["dashboard","Dashboard"]],
  NAV1=[["profile","What you're looking for","1",""],["scout","How to find it","2","agent"],["tailor","How and when to customize","3",""],["warm","Warm contacts","4",""],["interview","Interview prep","5",""],["negotiate","Negotiation","6",""],["market","Market check","7",""]];
 var cur="intro";
 function go(v){cur=v;try{history.replaceState(null,"","#"+v)}catch(e){}render();window.scrollTo(0,0);var m=document.querySelector(".pane");if(m&&m.scrollIntoView&&window.innerWidth<=860){}}
@@ -466,7 +466,7 @@ VIEWS.why=function(){
    h("div",{class:"head"},h("h1",null,"Why the Concierge"),h("p",{class:"sub"},"A product manager\u2019s story: from a stalled job search to a tool for everyone in the same spot.")),
    h("div",{class:"card",style:"max-width:760px"},
     h("p",{style:"margin:0 0 12px"},"I am a product management professional with over a decade of experience building and launching everything from physical goods to AI-powered SaaS experiences and platforms. I have built and developed teams from the ground up, and I have a passion for coaching PMs."),
-    h("p",{style:"margin:0 0 12px"},"Then I was abruptly impacted by a layoff and, for the first time in my career, found myself searching for a job. I applied to hundreds of roles and tried different \u201cAI tools\u201d that found me, but like most people I had read about, I wasn\u2019t hearing anything back. After a couple of months of doing things the \u201Cold way,\u201d I had enough application tracking data to prove that it simply wasn\u2019t working. I started digging into what I might be doing wrong, and it quickly became clear that I was up against a broken system, with many others in the same position."),
+    h("p",{style:"margin:0 0 12px"},"Then I was abruptly impacted by a layoff and, for the first time in my career, found myself searching for a job. I applied to over 100 roles and tried different \u201cAI tools\u201d that found me, but like most people I had read about, I wasn\u2019t hearing anything back. After a couple of months of doing things the \u201Cold way,\u201d I had enough application tracking data to prove that it simply wasn\u2019t working. I started digging into what I might be doing wrong, and it quickly became clear that I was up against a broken system, with many others in the same position."),
     h("p",{style:"margin:0 0 12px"},"I decided to take off my \u201cjob searcher\u201d hat and put on my \u201cPM\u201d hat. That meant understanding the problem first:"),
     h("ul",{style:"margin:0 0 12px;padding-left:20px;display:grid;gap:4px"},h("li",null,"How big was the job search problem, really?"),h("li",null,"Who specifically was struggling?"),h("li",null,"What was causing the friction?"),h("li",null,"Were there any tools or solutions out there already?")),
     h("h2",{style:"margin:18px 0 8px"},"How big is the problem, and who is struggling?"),
