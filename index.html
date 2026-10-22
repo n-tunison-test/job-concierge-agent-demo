@@ -207,7 +207,7 @@ var SCOUT=[
 var UNVER=[{co:"Orchid Care",role:"Group Product Manager",note:"No posting date visible; may be an old listing."}];
 
 /* ---------- views ---------- */
-var VIEWS={}, NAV0=[["intro","Intro and setup"],["dashboard","Dashboard"]],
+var VIEWS={}, NAV0=[["intro","Intro and setup"],["why","Why the Concierge"],["dashboard","Dashboard"]],
  NAV1=[["profile","What you're looking for","1",""],["scout","How to find it","2","agent"],["tailor","How and when to customize","3",""],["warm","Warm contacts","4",""],["interview","Interview prep","5",""],["negotiate","Negotiation","6",""],["market","Market check","7",""]];
 var cur="intro";
 function go(v){cur=v;try{history.replaceState(null,"","#"+v)}catch(e){}render();window.scrollTo(0,0);var m=document.querySelector(".pane");if(m&&m.scrollIntoView&&window.innerWidth<=860){}}
@@ -216,7 +216,7 @@ function render(){
     var b=h("button",{type:"button",onclick:function(){go(n[0])}},numbered?h("span",{class:"n"},n[2]):null,h("span",{class:"t"},n[1]),n[3]?h("span",{class:"tag"},n[3]):null);
     if(n[0]===cur)b.setAttribute("aria-current","page");box.appendChild(b)})}
   mk(NAV0,$("nav0"),false);mk(NAV1,$("nav1"),true);
-  var v=$("view");v.textContent="";v.appendChild(h("div",{class:"demo"},"Demo with sample data. Jordan Rivera and every company shown are fictional. In the full version, Claude does the work and saves it to your own Google Drive."));
+  var v=$("view");v.textContent="";if(cur!=="why")v.appendChild(h("div",{class:"demo"},"Demo with sample data. Jordan Rivera and every company shown are fictional. In the full version, Claude does the work and saves it to your own Google Drive."));
   v.appendChild((VIEWS[cur]||VIEWS.intro)());
 }
 function head(stage,title,sub,skill){
@@ -458,6 +458,29 @@ VIEWS.negotiate=function(){
    res,drafts,
    h("div",{class:"card"},h("h2",{style:"margin-bottom:6px"},"Before you accept"),h("ul",{style:"margin:0;padding-left:18px"},h("li",null,"Get every number, the level and title, the start date and the equity terms in writing."),h("li",null,"Have a professional review equity and contract terms."),h("li",null,"Sign-on and equity usually move before base does."))),
    behind("negotiation","Tracker: Outcome, Furthest stage and Notes","Your Profile floor and the offer you share"));
+};
+
+/* ===== Why the Concierge ===== */
+VIEWS.why=function(){
+  return h("div",{class:"wrap"},
+   h("div",{class:"head"},h("h1",null,"Why the Concierge"),h("p",{class:"sub"},"A product manager\u2019s story: from a stalled job search to a tool for everyone in the same spot.")),
+   h("div",{class:"card",style:"max-width:760px"},
+    h("p",{style:"margin:0 0 12px"},"I am a product management professional with over a decade of experience building and launching everything from physical goods to AI-powered SaaS experiences and platforms. I have built and developed teams from the ground up, and I have a passion for coaching PMs."),
+    h("p",{style:"margin:0 0 12px"},"Then I was abruptly impacted by a layoff and, for the first time in my career, found myself searching for a job. I applied to hundreds of roles and tried different \u201cAI tools\u201d that found me, but like most people I had read about, I wasn\u2019t hearing anything back. After a couple of months of doing things the \u201Cold way,\u201d I had enough application tracking data to prove that it simply wasn\u2019t working. I started digging into what I might be doing wrong, and it quickly became clear that I was up against a broken system, with many others in the same position."),
+    h("p",{style:"margin:0 0 12px"},"I decided to take off my \u201cjob searcher\u201d hat and put on my \u201cPM\u201d hat. That meant understanding the problem first:"),
+    h("ul",{style:"margin:0 0 12px;padding-left:20px;display:grid;gap:4px"},h("li",null,"How big was the job search problem, really?"),h("li",null,"Who specifically was struggling?"),h("li",null,"What was causing the friction?"),h("li",null,"Were there any tools or solutions out there already?")),
+    h("h2",{style:"margin:18px 0 8px"},"How big is the problem, and who is struggling?"),
+    h("p",{style:"margin:0 0 12px"},"I first focused on the market for senior PM and PM manager roles in tech, like mine. Manager and director PM headcount is down roughly a third (about 31 to 35%) since 2022 after widespread restructuring, which means more people competing for fewer jobs. Not dire, but not great for my senior PM and PM manager friends. Other segments across product, IT and technology are affected too, but I stayed narrow on my own segment for now."),
+    h("p",{style:"margin:0 0 12px"},"Two measures stood out across every segment I looked at: applications yield a low single-digit response rate, and finding a new role now takes over six months on average, and much longer for many people."),
+    h("h2",{style:"margin:18px 0 8px"},"What was causing the friction?"),
+    h("p",{style:"margin:0 0 12px"},"The friction is shared by candidates and hirers alike. AI-written resumes, mass applying and AI screening of those resumes have created what is often called the \u201cAI doom loop.\u201d Combined with more people looking and faster application volume, it affects everyone, at every step and across every channel."),
+    h("h2",{style:"margin:18px 0 8px"},"Were there tools I could use?"),
+    h("p",{style:"margin:0 0 12px"},"AI was both the origin of the problem and the thing that had changed the landscape. I tried different \u201cAI job tools,\u201d from ones that take your resume and search for jobs to ones that tailor a resume for each posting. I found most of them too generic, not accurate enough, or they just created more work on top of the 3 to 4 hours a day I was already spending. I wasn\u2019t seeing better results either. The builder in me knew I needed to build something myself."),
+    h("h2",{style:"margin:18px 0 8px"},"This is where Job Search Concierge was born"),
+    h("p",{style:"margin:0 0 12px"},"The goal for this tool was threefold:"),
+    h("ol",{style:"margin:0 0 4px;padding-left:20px;display:grid;gap:6px"},h("li",null,"Land a role I am excited about in this new AI job search landscape. (I love to build things that help people.)"),h("li",null,"Demonstrate my ability to think and build like a PM using AI tools, without knowing how to code."),h("li",null,"Create something that helps other job seekers, in any segment, navigate their job search.")),
+    h("div",{style:"margin-top:16px;display:flex;gap:10px;flex-wrap:wrap"},h("button",{class:"btn pri",type:"button",onclick:function(){go("intro")}},"Get the skill"),h("button",{class:"btn",type:"button",onclick:function(){go("profile")}},"See the stages")))
+  );
 };
 
 /* ===== Market check ===== */
