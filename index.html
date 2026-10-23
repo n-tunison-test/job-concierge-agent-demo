@@ -195,6 +195,8 @@ var APPS=(function(){var R=rng(11),out=[],start=new Date(2026,7,24),i,N=64,srcs=
     else if(stage>=3&&R()<0.5)outc="Active";
     else outc=R()<0.7?"Rejected":(R()<0.5?"Withdrawn":"Active");
     out.push({d:d,src:warm?"Referral":srcs[Math.floor(R()*srcs.length)],warm:warm,ver:ver,stage:stage,out:outc});}
+  var Q=rng(23),cos=["Brightwell Health","Orchid Care","Harbor Ledger","Pinecrest Pay","Lumen Grid","Tidewater Labs","Kestrel Systems","Quartzline","Bluefin Data","Alder Robotics","Summit Relay","Copperleaf","Fernbrook","Ironwood AI","Marlow Cloud","Nimbus Row","Oakline Software","Polar Signal","Acme Care Navigation","Sagebrush Health","Velvet Mesa","Granite Peak AI","Cobalt Meadow","Juniper Works"],roles=["Group Product Manager","Director of Product","Principal Product Manager","Head of Product","Senior Product Manager","Product Lead, Platform","Director, Product Operations","Senior Group Product Manager"];
+  out.forEach(function(r){r.co=cos[Math.floor(Q()*cos.length)];r.role=roles[Math.floor(Q()*roles.length)]});
   return out})();
 
 var SCOUT=[
@@ -259,7 +261,7 @@ VIEWS.intro=function(){
     h("div",{class:"how"},h("div",null,h("div",{class:"lab"},"You"),h("div",null,"Answer questions, review drafts, make every send and apply decision.")),h("span",null,"→"),
      h("div",null,h("div",{class:"lab"},"Claude + skills"),h("div",null,"Runs the seven stages and the twice-daily agent.")),h("span",null,"→"),
      h("div",null,h("div",{class:"lab"},"Your Google Drive"),h("div",null,"Profile, tracker, digests, resumes, prep docs. Yours alone.")),h("span",null,"→"),
-     h("div",null,h("div",{class:"lab"},"Dashboard"),h("div",null,"Counts only. No company or role names.")))),
+     h("div",null,h("div",{class:"lab"},"Dashboard"),h("div",null,"Counts and the roles behind them, private to you. A counts-only version is there to share.")))),
    h("div",{class:"cols"},
     h("div",{class:"card"},h("div",{style:"display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px"},h("h2",null,"Set up in about 30 minutes"),counter),h("div",null,rows),
      h("p",{class:"sub",style:"font-size:13.5px;margin-top:10px"},"In this demo the checklist is only a preview. In the full version Claude checks each connection for you.")),
@@ -274,7 +276,7 @@ VIEWS.intro=function(){
     h("p",{class:"sub",style:"font-size:13px;margin-top:10px"},"Uploading skills works on personal plans. Team and Enterprise plans can also share it with colleagues.")),
    h("div",{class:"g2"},
     h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Get better results"),h("p",{class:"sub"},"Add specific prior work details, accomplishments that never made your resume, and portfolio examples with links. The digest judges fit against your Profile and the resume tailor can only use what is in it. You can add more at any time.")),
-    h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Privacy"),h("p",{class:"sub"},"Your data lives in your own Drive. The dashboard is built from counts, so company names, roles, links and contacts are never in it. Anything stronger than your record is flagged for your approval before it reaches a resume."))));
+    h("div",{class:"card"},h("h2",{style:"margin-bottom:8px"},"Privacy"),h("p",{class:"sub"},"Your data lives in your own Drive. The dashboard you share is built from counts only, so company names, roles, links and contacts are never in it. The roles list is for your private view. Anything stronger than your record is flagged for your approval before it reaches a resume."))));
 };
 
 /* ===== Profile ===== */
@@ -538,7 +540,7 @@ function bounds(){var min=APPS[0].d,max=TODAY;
 function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function parseYmd(s){var p=s.split("-");return p.length===3?new Date(+p[0],+p[1]-1,+p[2]):null}
 
-function sankey(rows){
+function sankey(rows,pick){
   var W=900,H=430,L=10,R=140,NW=14,names=["Applied","Phone screen","Interview 1","Interview 2","Offer"];
   var n=[0,0,0,0,0,0],i;for(i=1;i<=5;i++)n[i]=rows.filter(function(r){return r.stage>=i}).length;
   var box=h("div",{class:"chart"}),svg=se("svg",{viewBox:"0 0 "+W+" "+H,role:"img","aria-label":"Where applications end up: "+n[1]+" applied, "+n[2]+" phone screens, "+n[3]+" first interviews, "+n[4]+" second interviews, "+n[5]+" offers"});
@@ -546,25 +548,28 @@ function sankey(rows){
   var tip=h("div",{class:"tip"});
   function show(ev,t){tip.textContent=t;tip.style.display="block";var r=box.getBoundingClientRect(),x=ev.clientX-r.left+12;if(x>r.width-200)x=ev.clientX-r.left-190;tip.style.left=Math.max(0,x)+"px";tip.style.top=(ev.clientY-r.top+12)+"px"}
   function hide(){tip.style.display="none"}
-  function band(x0,y0,h0,x1,y1,fill,text){var mx=(x0+x1)/2,p=se("path",{d:"M"+x0+","+y0+"C"+mx+","+y0+" "+mx+","+y1+" "+x1+","+y1+"L"+x1+","+(y1+h0)+"C"+mx+","+(y1+h0)+" "+mx+","+(y0+h0)+" "+x0+","+(y0+h0)+"Z",fill:fill,stroke:"var(--pane)","stroke-width":1});
-    p.addEventListener("pointermove",function(e){show(e,text)});p.addEventListener("pointerleave",hide);svg.appendChild(p)}
+  function mkBtn(el,label,list){if(!pick)return;el.style.cursor="pointer";el.setAttribute("tabindex","0");el.setAttribute("role","button");el.setAttribute("aria-label",label+". Show these roles.");
+    el.addEventListener("click",function(){pick(label,list)});el.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(label,list)}})}
+  function band(x0,y0,h0,x1,y1,fill,text,list){var mx=(x0+x1)/2,p=se("path",{d:"M"+x0+","+y0+"C"+mx+","+y0+" "+mx+","+y1+" "+x1+","+y1+"L"+x1+","+(y1+h0)+"C"+mx+","+(y1+h0)+" "+mx+","+(y0+h0)+" "+x0+","+(y0+h0)+"Z",fill:fill,stroke:"var(--pane)","stroke-width":1});
+    p.addEventListener("pointermove",function(e){show(e,text+(pick?". Click to see roles":""))});p.addEventListener("pointerleave",hide);mkBtn(p,text,list);svg.appendChild(p)}
   var top=44,tops=[];
   for(i=1;i<=5;i++)tops[i]=top;
   var nodes=[],links=[];
   for(i=1;i<=4;i++){
     var out=rows.filter(function(r){return r.stage===i}),rej=out.filter(function(r){return r.out==="Rejected"}).length,wd=out.filter(function(r){return r.out==="Withdrawn"}).length,act=out.length-rej-wd;
     var x0=colX(i-1)+NW,x1=colX(i),cy=top;
-    if(n[i+1]>0){band(x0,cy,n[i+1]*s,x1,top,"var(--flow)",n[i+1]+" of "+n[i]+" moved from "+names[i-1]+" to "+names[i]);}
+    if(n[i+1]>0){band(x0,cy,n[i+1]*s,x1,top,"var(--flow)",n[i+1]+" of "+n[i]+" moved from "+names[i-1]+" to "+names[i],rows.filter(function(r){return r.stage>=i+1}));}
     cy+=n[i+1]*s;
     var ty=top+n[i+1]*s+16;
     [["Rejected",rej,"var(--gray-flow)","var(--gray-node)"],["Withdrawn",wd,"var(--gray-flow)","var(--gray-node)"],["Still active",act,"var(--flow2)","var(--s1-soft)"]].forEach(function(t){
       if(!t[1])return;var hh=Math.max(t[1]*s,3);
-      band(x0,cy,t[1]*s,x1,ty,t[2],t[1]+" "+t[0].toLowerCase()+" after "+names[i-1]);
-      nodes.push({x:x1,y:ty,h:hh,fill:t[3],label:t[0]+" "+t[1],term:true,tip:t[1]+" "+t[0].toLowerCase()+" after "+names[i-1]});
+      var tl=out.filter(function(r){return r.out===(t[0]==="Still active"?"Active":t[0])});
+      band(x0,cy,t[1]*s,x1,ty,t[2],t[1]+" "+t[0].toLowerCase()+" after "+names[i-1],tl);
+      nodes.push({x:x1,y:ty,h:hh,fill:t[3],label:t[0]+" "+t[1],term:true,tip:t[1]+" "+t[0].toLowerCase()+" after "+names[i-1],list:tl});
       cy+=t[1]*s;ty+=hh+8});
   }
-  for(i=1;i<=5;i++)nodes.push({x:colX(i-1),y:top,h:Math.max(n[i]*s,n[i]?3:0),fill:"var(--s1)",label:names[i-1],count:n[i],term:false,tip:n[i]+" reached "+names[i-1]});
-  nodes.forEach(function(nd){if(!nd.h)return;var r=se("rect",{x:nd.x,y:nd.y,width:NW,height:nd.h,rx:3,fill:nd.fill});r.addEventListener("pointermove",function(e){show(e,nd.tip)});r.addEventListener("pointerleave",hide);svg.appendChild(r);
+  for(i=1;i<=5;i++)nodes.push({x:colX(i-1),y:top,h:Math.max(n[i]*s,n[i]?3:0),fill:"var(--s1)",label:names[i-1],count:n[i],term:false,tip:n[i]+" reached "+names[i-1],list:rows.filter(function(r){return r.stage>=i})});
+  nodes.forEach(function(nd){if(!nd.h)return;var r=se("rect",{x:nd.x,y:nd.y,width:NW,height:nd.h,rx:3,fill:nd.fill});r.addEventListener("pointermove",function(e){show(e,nd.tip+(pick?". Click to see roles":""))});r.addEventListener("pointerleave",hide);mkBtn(r,nd.tip,nd.list);svg.appendChild(r);
     if(nd.term)svg.appendChild(se("text",{x:nd.x+NW+8,y:nd.y+Math.min(nd.h/2+4,16),fill:"var(--ink2)","font-size":12.5},nd.label));
     else{svg.appendChild(se("text",{x:nd.x,y:22,fill:"var(--ink)","font-size":13,"font-weight":700},nd.label));svg.appendChild(se("text",{x:nd.x,y:38,fill:"var(--ink2)","font-size":12.5},String(nd.count)))}});
   box.appendChild(svg);box.appendChild(tip);
@@ -605,13 +610,24 @@ VIEWS.dashboard=function(){
   var f=h("input",{id:"from",type:"date",min:ymd(APPS[0].d),max:ymd(TODAY)}),t=h("input",{id:"to",type:"date",min:ymd(APPS[0].d),max:ymd(TODAY)});f.value=ymd(lo);t.value=ymd(hi);
   function custom(){var a=parseYmd(f.value),z=parseYmd(t.value);if(!a||!z)return;if(a>z){var x=a;a=z;z=x}range={preset:"custom",from:a,to:z};go("dashboard")}
   f.addEventListener("change",custom);t.addEventListener("change",custom);
-  function kpi(l,v,s){return h("div",{class:"card kpi"},h("div",{class:"lab"},l),h("div",{class:"v"},v),h("div",{class:"s"},s))}
+  var panel=h("div",{class:"card",hidden:true,id:"roles-panel"});
+  function pickRoles(label,list){
+    panel.hidden=false;panel.textContent="";
+    var st=["","Applied","Phone screen","Interview 1","Interview 2","Offer"],sorted=list.slice().sort(function(a,b){return b.d-a.d});
+    var close=h("button",{class:"btn sm",type:"button",onclick:function(){panel.hidden=true}},"Close");
+    panel.appendChild(h("div",{style:"display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px"},h("h2",null,label+" ("+sorted.length+" roles)"),close));
+    panel.appendChild(sorted.length?h("div",{class:"tablewrap",style:"max-height:420px;overflow:auto"},h("table",null,h("tr",null,h("th",null,"Company"),h("th",null,"Role"),h("th",null,"Applied"),h("th",null,"Source"),h("th",null,"Furthest stage"),h("th",null,"Outcome")),
+      sorted.map(function(r){return h("tr",null,h("td",null,r.co),h("td",null,r.role),h("td",null,fdate(r.d)),h("td",null,r.src),h("td",null,st[r.stage]),h("td",null,r.out))}))):h("p",{class:"sub"},"No roles here."));
+    panel.appendChild(h("p",{class:"sub",style:"font-size:13px;margin-top:8px"},"Sample data. In your own dashboard this list is private to you. Use the share-safe version of the page if you post a link."));
+    if(panel.scrollIntoView)panel.scrollIntoView({behavior:"smooth",block:"nearest"})}
+  function kpi(l,v,s,list){var c=h("button",{class:"card kpi",type:"button",style:"text-align:left;cursor:pointer;width:100%","aria-label":l+": "+v+". Show these roles."},h("div",{class:"lab"},l),h("div",{class:"v"},v),h("div",{class:"s"},s),h("div",{class:"s",style:"color:var(--accent-text);margin-top:6px"},"Show roles"));c.addEventListener("click",function(){pickRoles(l==="Applied"?"Applied":l,list)});return c}
   function pct(a,b2){return b2?Math.round(a/b2*100)+"% of applied":"no applications"}
   var body;
   if(!n){body=h("div",{class:"card empty"},h("h2",null,"No applications in this range"),h("p",{class:"sub",style:"margin:6px auto 0"},"Choose a wider range or All time."))}
   else body=h("div",{class:"wrap",style:"gap:16px"},
-    h("div",{class:"g4"},kpi("Applied",String(n),fdate(lo)+" to "+fdate(hi)),kpi("Phone screens",String(sc),pct(sc,n)),kpi("Interviews",String(iv),pct(iv,n)),kpi("Offers",String(of),of?pct(of,n):"none yet")),
-    h("div",{class:"card"},h("h2",null,"Where applications end up"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Of "+n+" applications, "+sc+" reached a phone screen and "+iv+" a first interview. "+rows.filter(function(r){return r.out==="Active"}).length+" are still active."),sankey(rows)),
+    h("div",{class:"g4"},kpi("Applied",String(n),fdate(lo)+" to "+fdate(hi),rows),kpi("Phone screens",String(sc),pct(sc,n),rows.filter(function(r){return r.stage>=2})),kpi("Interviews",String(iv),pct(iv,n),rows.filter(function(r){return r.stage>=3})),kpi("Offers",String(of),of?pct(of,n):"none yet",rows.filter(function(r){return r.stage>=5}))),
+    h("div",{class:"card"},h("h2",null,"Where applications end up"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Of "+n+" applications, "+sc+" reached a phone screen and "+iv+" a first interview. "+rows.filter(function(r){return r.out==="Active"}).length+" are still active. Click a box, bar or path to see the roles."),sankey(rows,pickRoles)),
+    panel,
     h("div",{class:"g2"},
       h("div",{class:"card"},h("h2",null,"Referred or cold"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Bar length is applications sent. The darker part reached a phone screen."),groupBars(rows,function(r){return r.warm?"Referred":"Cold"},["Referred","Cold"]),h("div",{class:"legend",style:"margin-top:8px"},h("span",null,h("i",{style:"background:var(--flow2)"}),"Applied"),h("span",null,h("i",{style:"background:var(--s1)"}),"Reached a screen"))),
       h("div",{class:"card"},h("h2",null,"By resume version"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 8px"},"Does tailoring help? Compare reached-a-screen counts."),groupBars(rows,function(r){return r.ver},["Baseline v1","Baseline v2","Tailored"]))),
@@ -619,7 +635,7 @@ VIEWS.dashboard=function(){
       h("div",{class:"card"},h("h2",null,"By source"),h("div",{style:"height:8px"}),groupBars(rows,function(r){return r.src},["Referral","LinkedIn","Company site","Recruiter","Greenhouse"])),
       h("div",{class:"card"},h("h2",null,"Applications per week"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 6px"},"Lighter bar is applied, darker is reached a screen."),weekly(rows,b))));
   return h("div",{class:"wrap"},
-   h("div",{class:"head"},h("div",{class:"row"},h("span",{class:"pill acc"},"Counts only")),h("h1",null,"Dashboard"),h("p",{class:"sub"},"What is working across your search. Company and role names never appear here.")),
+   h("div",{class:"head"},h("div",{class:"row"},h("span",{class:"pill acc"},"Sample data")),h("h1",null,"Dashboard"),h("p",{class:"sub"},"What is working across your search. Click any number or path to see the roles behind it.")),
    h("div",{class:"card flat",style:"display:flex;gap:14px;flex-wrap:wrap;align-items:end"},h("div",null,h("div",{class:"lab",style:"margin-bottom:6px"},"Time range"),seg),h("div",{style:"flex:0 1 150px"},h("label",{class:"f",for:"from"},"From"),f),h("div",{style:"flex:0 1 150px"},h("label",{class:"f",for:"to"},"To"),t)),
    body,
    behind("Dashboard builder","Job Search / Dashboard","Counts from your Tracker"));
