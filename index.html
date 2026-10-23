@@ -635,7 +635,7 @@ VIEWS.dashboard=function(){
       h("div",{class:"card"},h("h2",null,"By source"),h("div",{style:"height:8px"}),groupBars(rows,function(r){return r.src},["Referral","LinkedIn","Company site","Recruiter","Greenhouse"])),
       h("div",{class:"card"},h("h2",null,"Applications per week"),h("p",{class:"sub",style:"font-size:14px;margin:2px 0 6px"},"Lighter bar is applied, darker is reached a screen."),weekly(rows,b))));
   return h("div",{class:"wrap"},
-   h("div",{class:"head"},h("div",{class:"row"},h("span",{class:"pill acc"},"Sample data")),h("h1",null,"Dashboard"),h("p",{class:"sub"},"What is working across your search. Click any number or path to see the roles behind it.")),
+   h("div",{class:"head"},h("div",{class:"row"},h("span",{class:"pill acc"},"Sample data")),h("h1",null,"Dashboard"),h("p",{class:"sub"},"What isn't measured, isn't managed, which is core to being data centric and decision making. This dashboard helps understand what is, or isn't, working and pinpoints where you're getting stuck in the funnel so you can address it and land your new role. Click any number or path to see the roles behind it.")),
    h("div",{class:"card flat",style:"display:flex;gap:14px;flex-wrap:wrap;align-items:end"},h("div",null,h("div",{class:"lab",style:"margin-bottom:6px"},"Time range"),seg),h("div",{style:"flex:0 1 150px"},h("label",{class:"f",for:"from"},"From"),f),h("div",{style:"flex:0 1 150px"},h("label",{class:"f",for:"to"},"To"),t)),
    body,
    behind("Dashboard builder","Job Search / Dashboard","Counts from your Tracker"));
