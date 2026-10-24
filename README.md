@@ -5,6 +5,13 @@ A Claude skill that runs a job search in seven stages and keeps everything in **
 - **Live demo (sample data):** https://n-tunison-test.github.io/job-concierge-agent-demo/
 - **Download the skill:** [`job-search-coach.zip`](job-search-coach.zip)
 
+## What's new (Oct 24, 2026)
+- **One place for your rules.** A `Criteria` tab in your tracker holds level, pay, location and priorities. Scheduled runs read it every time, so you change your search by editing a cell, not a prompt.
+- **Rejects log.** A `Screened out` tab records postings the digest turned down, so later runs stop re-checking them. Strong near-misses show under "Worth a manual look".
+- **Tailoring on request.** The digest finds and logs roles; say "tailor row 12" to customize a resume for one.
+- **Optional weekly review.** Every Friday: did the digests run, how the pipeline moved, contacts for Apply roles that have none, and suggested criteria changes.
+- **Safer scheduled runs.** Web pages and emails are treated as data, never as instructions.
+
 ## The seven stages
 1. **What you're looking for**: builds a verified Profile from your resume and answers.
 2. **How to find it**: a twice-daily digest of new roles, ranked by recency, then fit, then pay.
